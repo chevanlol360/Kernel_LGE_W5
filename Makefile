@@ -193,7 +193,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
 ARCH		:= arm
-CROSS_COMPILE	:= /home/chevanlol360/android/Kernels/toolchains/arm-cortex_a8-linux-gnueabi-linaro/bin/arm-cortex_a8-linux-gnueabi-
+CROSS_COMPILE	:= /home/chevanlol360/android/Kernels/toolchains/arm-cortex_a15-linux-gnueabihf-linaro/bin/arm-cortex_a15-linux-gnueabihf-
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -354,8 +354,8 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL   = -mcpu=cortex-a8 -mfpu=neon -ftree-vectorize
-AFLAGS_KERNEL   = -mcpu=cortex-a8 -mfpu=neon -ftree-vectorize
+CFLAGS_KERNEL  = -mcpu=cortex-a15 -mfpu=neon -ftree-vectorize
+AFLAGS_KERNEL  = -mcpu=cortex-a15 -mfpu=neon -ftree-vectorize
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage
 
 
@@ -372,6 +372,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
+                   -Wno-maybe-uninitialized \
 		   -fno-delete-null-pointer-checks
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
