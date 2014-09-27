@@ -32,7 +32,6 @@ modules.builtin
 *.lzo
 *.patch
 *.gcno
-*.mfsb
 
 #
 # Top-level generic files
