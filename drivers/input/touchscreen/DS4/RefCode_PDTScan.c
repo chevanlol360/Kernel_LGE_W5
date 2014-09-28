@@ -48,20 +48,15 @@ unsigned char CheckButton[CFG_F54_TXCOUNT][CFG_F54_RXCOUNT];
 unsigned char ButtonTXUsed[CFG_F54_TXCOUNT];
 unsigned char ButtonRXUsed[CFG_F54_RXCOUNT];
 
-#ifdef F54_Porting
-#define BUFFER_AVAILABLE_MAX_SIZE 512
-#endif
-
 void SYNA_PDTScan(void)
 {
-	unsigned char j, tmp = 255;
+	unsigned char j, tmp = 255, check_bit = 0;
 	unsigned char FUNC_EXISTS = 0;
 	unsigned char in[10];	
 #ifdef F54_Porting
 	unsigned short i;
  	char buf[768] = {0};
- 	char temp_buf[70] = {0};
- 	int ret = 0,temp_ret = 0;
+ 	int ret = 0;
 #else
 	unsigned short i, tmp16, l, m;
 #endif
@@ -84,18 +79,19 @@ void SYNA_PDTScan(void)
 
 		FUNC_EXISTS = 0;	// reset flag
 		j = 0;				// reset func addr info index
-#ifdef F54_Porting
-		temp_ret = 0;
-#endif
+
 		while(1) 
 		{
+
+			if (check_bit == 0x1f || j > 10) {
+				write_log(buf);
+				FUNC_EXISTS = 0;
+				break;
+			}
+
 			j++;
 			readRMI((i << 8) | (PDT_ADDR - PDT_SIZE*j), in, 6);
 			readRMI((i << 8) | 0xFF, &tmp, 1);
-			if((PDT_ADDR - PDT_SIZE*j) < 0){
-				write_log(buf);	
-				return;
-			}
 
 			if(in[5] == 0x00) 
 			{		// No more functions on this page
@@ -103,7 +99,6 @@ void SYNA_PDTScan(void)
 				{
 			//		constructPrivRMI();
 #ifdef F54_Porting			
-					ret += snprintf(buf+ret, 1, "\n"); 
 					write_log(buf);
 #endif
 					return;
@@ -114,68 +109,63 @@ void SYNA_PDTScan(void)
 				}
 				break;
 			} 
-			else if(in[5] == 0x11) 
+			else if(in[5] == 0x11 && !(check_bit & (1 << 0))) 
 			{		// Function11
+				check_bit |= (1 << 0);
 				F11_Query_Base = (i << 8) | in[0];
 				F11_Cmd_Base = (i << 8) | in[1];
 				F11_Ctrl_Base = (i << 8) | in[2];
 				F11_Data_Base = (i << 8) | in[3];
 #ifdef F54_Porting
-				temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
-				// ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+				ret += sprintf(buf+ret, "-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
 #endif
 			} 
-			else if(in[5] == 0x34) 
+			else if(in[5] == 0x34 && !(check_bit & (1 << 1))) 
 			{		// Function34
+				check_bit |= (1 << 1);
 				F34_Query_Base = (i << 8) | in[0];
 				F34_Cmd_Base = (i << 8) | in[1];
 				F34_Ctrl_Base = (i << 8) | in[2];
 				F34_Data_Base = (i << 8) | in[3];
 #ifdef F54_Porting
-				temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
-				// ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+				ret += sprintf(buf+ret, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
 #endif
 			} 
-			else if(in[5] == 0x01) 
+			else if(in[5] == 0x01 && !(check_bit & (1 << 2)))  
 			{		 // Function01
+				check_bit |= (1 << 2);
 				F01_Query_Base = (i << 8) | in[0];
 				F01_Cmd_Base = (i << 8) | in[1];
 				F01_Ctrl_Base = (i << 8) | in[2];
 				F01_Data_Base = (i << 8) | in[3];
 #ifdef F54_Porting
-                                temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
-				// ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+				ret += sprintf(buf+ret, "-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
 #endif
 			}				
-			else if(in[5] == 0x54) 
+			else if(in[5] == 0x54 && !(check_bit & (1 << 3)))  
 			{
+				check_bit |= (1 << 3);
 				F54_Query_Base = (i << 8) | in[0];
 				F54_Command_Base = (i << 8) | in[1];
 				F54_Control_Base = (i << 8) | in[2];
@@ -190,21 +180,19 @@ void SYNA_PDTScan(void)
 #endif
 
 #ifdef F54_Porting
-                               temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
-				// ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+				ret += sprintf(buf+ret, "-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
 #endif
 			} 
-			else if(in[5] == 0x1A) 
+			else if(in[5] == 0x1A && !(check_bit & (1 << 4)))  
 			{
+				check_bit |= (1 << 4);
 				F1A_Query_Base = (i << 8) | in[0];
 				F1A_Command_Base = (i << 8) | in[1];
 				F1A_Control_Base = (i << 8) | in[2];
@@ -217,15 +205,12 @@ void SYNA_PDTScan(void)
 #endif
 
 #ifdef F54_Porting
-                                temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
-				// ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+				ret += sprintf(buf+ret, "-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X, Address = 0x%02x --\n", in[5], (PDT_ADDR - PDT_SIZE*j));
 #endif
@@ -233,15 +218,11 @@ void SYNA_PDTScan(void)
 			else 
 			{
 #ifdef F54_Porting
-				temp_ret = sprintf(temp_buf, "\n-- RMI Function $%02X not supported --\n", in[5]);
-                                // ret = total str length, temp_ret = current str length
-				if(ret + temp_ret >= BUFFER_AVAILABLE_MAX_SIZE){
-					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over %d, %d.\n", in[5], ret, temp_ret);
+                                if(ret>512){
+					printk(KERN_INFO"\n-- RMI Function $%02X, buffer size over.\n", in[5]);
 					write_log(buf);
 					return;
 				}
-				ret += snprintf(buf+ret, temp_ret, "%s", temp_buf); 
-				ret -= 1; // remote /0 character
 #else
 				printk("\n-- RMI Function $%02X not supported --\n", in[5]);
 #endif

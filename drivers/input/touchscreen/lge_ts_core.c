@@ -125,8 +125,8 @@ static void safety_reset(struct lge_touch_data *ts);
 static int touch_ic_init(struct lge_touch_data *ts);
 static void touch_work_func_a(struct lge_touch_data *ts);
 
-/*                 
-                                                                           
+/* Debug mask value
+ * usage: echo [debug_mask] > /sys/module/lge_ts_core/parameters/debug_mask
  */
 u32 touch_debug_mask_ = 0
 			| DEBUG_BASE_INFO

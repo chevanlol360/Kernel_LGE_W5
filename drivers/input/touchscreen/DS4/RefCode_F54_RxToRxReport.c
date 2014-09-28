@@ -287,7 +287,12 @@ unsigned char F54_RxToRxReport(void)
 	command = 0x02;
 	writeRMI(F54_Command_Base, &command, 1);
 
+	read_count = 0;
 	do {
+		if(++read_count > 10) {
+			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
+			return 2;
+		}
 		delayMS(1); //wait 1ms
 		readRMI(F54_Command_Base, &command, 1);
 	} while (command != 0x00);

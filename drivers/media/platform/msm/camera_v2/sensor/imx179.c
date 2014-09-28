@@ -11,7 +11,7 @@
  *
  */
 #include "msm_sensor.h"
-#include <mach/board_lge.h>		//                            
+#include <mach/board_lge.h>		//to use lge_get_board_revno()
 #define IMX179_SENSOR_NAME "imx179"
 
 #define CONFIG_IMX179_DEBUG

@@ -4510,9 +4510,9 @@ static struct attribute *mxt_attrs[] = {
 	NULL
 };
 
-/*                                           
-  
-                               
+/* lge_touch_attr_show / lge_touch_attr_store
+ *
+ * sysfs bindings for lge_touch
  */
 static ssize_t lge_touch_attr_show(struct kobject *lge_touch_kobj, struct attribute *attr,
 			     char *buf)
@@ -5026,7 +5026,7 @@ static int __devinit mxt_probe(struct i2c_client *client,
 {
 	struct mxt_data *data;
 	int error;
-	int one_sec = 100; //                   
+	int one_sec = 100; //from lge_touch_core
 //	touch_thermal_mode = 0;
 
 	is_probing = true;

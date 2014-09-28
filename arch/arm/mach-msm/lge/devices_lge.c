@@ -479,13 +479,13 @@ bool is_lge_battery_valid(void)
 #endif //                             
 #endif
 }
-//                                    
+//EXPORT_SYMBOL(is_lge_battery_valid);
 
 int read_lge_battery_id(void)
 {
 		return lge_battery_info;
 }
-//                                   
+//EXPORT_SYMBOL(read_lge_battery_id);
 
 static int __init battery_information_setup(char *batt_info)
 {
@@ -734,7 +734,7 @@ int __init lge_crash_footprint_init(char *s)
     if (s != NULL) {
         s += 2;
         lge_bootreason = simple_strtoul(s, NULL, 16);
-        //                                                         
+        //pr_info("crash.footprint: (%s)%lx\n", s, lge_bootreason);
     }
 
     return 1;

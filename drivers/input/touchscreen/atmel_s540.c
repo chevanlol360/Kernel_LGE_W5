@@ -5429,9 +5429,9 @@ static struct attribute *lge_touch_attribute_list[] = {
 	NULL
 };
 
-/*                                           
-  
-                               
+/* lge_touch_attr_show / lge_touch_attr_store
+ *
+ * sysfs bindings for lge_touch
  */
 static ssize_t lge_touch_attr_show(struct kobject *lge_touch_kobj, struct attribute *attr,
 			     char *buf)

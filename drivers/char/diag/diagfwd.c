@@ -103,8 +103,8 @@ int lge_diag_get_smem_value(void)
 	int smem_size = 0;
 	lge_hw_smem_id0_type* lge_hw_smem_id0_ptr = (lge_hw_smem_id0_type *)
 		(smem_get_entry(SMEM_ID_VENDOR0, &smem_size));
-	//                                                           
-	//                                              
+	//pr_info("cable type: %d", lge_hw_smem_id1_ptr->cable_type);
+	//pr_info("QEM: %d", lge_hw_smem_id1_ptr->qem); 
 #if DIAG_ENABLE_DEBUG
     printk("Diag enable status: %d", lge_hw_smem_id0_ptr->diag_enable);
 #endif
