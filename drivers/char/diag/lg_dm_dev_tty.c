@@ -173,18 +173,18 @@ static int lge_dm_dev_tty_read_thread(void *data)
 			/* copy android data */
 // Add Exception Handling seongmook.Yim 2013.05.15 - s
 /*
-                                                 
-          
-                                        
-                                   
-                        
-                                    
-                                
+			for (i = 0; i < driver->poolsize_write_struct;
+				i++) {
+				if (driver->buf_tbl[i].length > 0) {
+					lge_dm_dev_tty_modem_response(
+					lge_dm_dev_tty_drv,
+					(void *)driver->buf_tbl[i].buf,
+					driver->buf_tbl[i].length);
 
-                                                                                     
-                                   
-                                
-     
+					diagmem_free(driver, (unsigned char *)(driver->buf_tbl[i].buf), POOL_TYPE_HDLC);
+					driver->buf_tbl[i].length = 0;
+					driver->buf_tbl[i].buf = 0;
+				}
 */
 // Add Exception Handling seongmook.Yim 2013.05.15 - e
 				/* copy modem data */

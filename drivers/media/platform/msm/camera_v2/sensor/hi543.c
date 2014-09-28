@@ -12,7 +12,7 @@
  */
 #include "msm_sensor.h"
 #define HI543_SENSOR_NAME "hi543"
-#include <mach/board_lge.h>		//                            
+#include <mach/board_lge.h>		//to use lge_get_board_revno()
 DEFINE_MSM_MUTEX(hi543_mut);
 
 static struct msm_sensor_ctrl_t hi543_s_ctrl;

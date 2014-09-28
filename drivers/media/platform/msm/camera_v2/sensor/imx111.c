@@ -11,7 +11,7 @@
  *
  */
 #include "msm_sensor.h"
-#include <mach/board_lge.h>		//                            
+#include <mach/board_lge.h>		//to use lge_get_board_revno()
 #define IMX111_SENSOR_NAME "imx111"
 DEFINE_MSM_MUTEX(imx111_mut);
 

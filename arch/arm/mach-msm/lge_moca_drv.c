@@ -324,7 +324,7 @@ static long lge_moca_ioctl(struct file *file, unsigned int cmd,
 	if (!lge_moca_devp)
 		return -EINVAL;
 	
-	//                                    
+	//mutex_lock(&lge_moca_devp->ch_lock);
 
 	
 	switch (cmd) 
@@ -362,7 +362,7 @@ static long lge_moca_ioctl(struct file *file, unsigned int cmd,
 			ret = -1;
 		}
 	}
-	//                                      
+	//mutex_unlock(&lge_moca_devp->ch_lock);
 
 	return ret;
 }
@@ -697,7 +697,7 @@ int lge_moca_open(struct inode *inode, struct file *file)
 				lge_moca_devp->is_open, (2 * HZ));
 		if (r == 0) {
 			r = -ETIMEDOUT;
-			/*                                                */
+			/* close the ch to sync smd's state with lge_moca */
 			smd_close(lge_moca_devp->ch);
 			lge_moca_devp->ch = NULL;
 		}

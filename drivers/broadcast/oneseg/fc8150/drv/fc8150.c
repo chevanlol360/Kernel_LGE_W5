@@ -10,7 +10,7 @@
 #include <asm/uaccess.h>
 #include <asm/io.h>
 #include <linux/module.h>	// add by taew00k.kang 2013-04-23
-#include <mach/board_lge.h> //                                                            
+#include <mach/board_lge.h> //to use lge_get_board_revno(), add by taew00k.kang 2013-04-23
 
 #include "fc8150.h"
 #include "bbm.h"
