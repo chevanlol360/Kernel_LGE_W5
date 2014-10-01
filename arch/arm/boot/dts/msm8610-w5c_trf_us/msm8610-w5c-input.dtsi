@@ -36,7 +36,7 @@
 			synaptics,fw_version_info = <0x32 0x04 0x51>;
 			lge,knock_on_type = <1>;
 			vdd-supply = <&pm8110_l22>;
-			synaptics,fw_image = "synaptics/w5c_trf_us/PLG317-V1.11-PR1600582-DS4.3.5.1.16_3204518B.img";
+			synaptics,fw_image = "synaptics/w5c_trf_us/PLG317-V1.14-PR1600582-DS4.3.5.1.16_3204518E.img";
 			synaptics,panel_spec = "synaptics/w5c_trf_us/w5c_trf_us_limit.txt";
 			synaptics,global_access_pixel = <10>;
 			synaptics,platform_data	{

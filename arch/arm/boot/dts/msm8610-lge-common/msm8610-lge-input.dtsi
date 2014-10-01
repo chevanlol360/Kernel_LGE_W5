@@ -337,6 +337,7 @@
 				panel_type = <0>;
 				maker_id = <0>;
 				maker_id_gpio = <0>;
+				maker_id2_gpio = <0>;
 				finger_reg_offset=<0>; /*s22002 : 0, s2200 : 1*/
 				button_support = <1>;
 				y_button_boundary	= <0>;

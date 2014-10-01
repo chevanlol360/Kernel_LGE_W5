@@ -938,13 +938,13 @@
 			qcom,prio-wr = <0>;
 			qcom,prio-lvl = <0>;
 			/*LGE_CHANGE_S, reducing bandwidth usage 20140222 yt.jeon@lge.com   */
-			qcom,mode-thresh = "Fixed";
-			qcom,thresh = <800000>;
+		    qcom,mode-thresh = "Fixed";
+		    qcom,thresh = <800000>;
 			qcom,dual-conf;
 			qcom,bimc,bw = <300000>;
 			qcom,bimc,gp = <5000>;
 			qcom,bimc,thmp = <50>;
-			/*LGE_CHANGE_E, reducing bandwidth usage 20140222 yt.jeon@lge.com   */
+			/*LGE_CHANGE_E, reducing bandwidth usage 20140222 yt.jeon@lge.com   */			
 		};
 
 		mas-mss-proc {

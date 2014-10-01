@@ -335,6 +335,9 @@ static ssize_t at_chg_status_store(struct device *dev,
 static struct device_attribute power_supply_attrs[] = {
 	/* Properties of type `int' */
 	POWER_SUPPLY_ATTR(status),
+#ifdef CONFIG_LGE_PM
+	POWER_SUPPLY_ATTR(status_original),
+#endif
 	POWER_SUPPLY_ATTR(charge_type),
 	POWER_SUPPLY_ATTR(health),
 	POWER_SUPPLY_ATTR(present),

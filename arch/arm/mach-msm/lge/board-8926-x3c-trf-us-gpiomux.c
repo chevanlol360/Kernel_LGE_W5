@@ -533,6 +533,28 @@ static struct msm_gpiomux_config usb_otg_sw_configs[] __initdata = {
 		},
 	},
 };
+static struct gpiomux_setting main_cam_id_gpio_act_config = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_UP,
+	.dir = GPIOMUX_IN
+};
+static struct gpiomux_setting main_cam_id_gpio_sus_config = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_NONE,
+	.dir = GPIOMUX_IN
+};
+
+static struct msm_gpiomux_config main_cam_id_gpio[] __initdata = {
+	{
+		.gpio = 71,
+		.settings = {
+			[GPIOMUX_ACTIVE] = &main_cam_id_gpio_act_config,
+			[GPIOMUX_SUSPENDED] = &main_cam_id_gpio_sus_config,
+		}
+	}
+};
 #endif
 
 /*                                                      */
@@ -644,6 +666,7 @@ void __init msm8226_init_gpiomux(void)
 #ifndef CONFIG_MACH_LGE
 	msm_gpiomux_install(msm_auxpcm_configs,
 			ARRAY_SIZE(msm_auxpcm_configs));
+	msm_gpiomux_install(main_cam_id_gpio, ARRAY_SIZE(main_cam_id_gpio));	/* MAIN_CAM_ID */
 
 	if (of_board_is_cdp() || of_board_is_mtp() || of_board_is_xpm())
 		msm_gpiomux_install(usb_otg_sw_configs,

@@ -91,6 +91,7 @@
 				panel_type = <0>;
 				maker_id = <0>;
 				maker_id_gpio = <0>;
+				maker_id2_gpio = <0>;
 				finger_reg_offset=<0>; /*s2202 : 0, s2200 : 1*/
 				button_support = <1>;
 				y_button_boundary = <0>;
@@ -158,6 +159,7 @@
 				panel_type = <0>;
 				maker_id = <0>;
 				maker_id_gpio = <0>;
+				maker_id2_gpio = <0>;
 				finger_reg_offset=<0>; /*s2202 : 0, s2200 : 1*/
 				button_support = <1>;
 				y_button_boundary = <0>;
@@ -186,9 +188,9 @@
 				reset_delay = <20>;
 				suspend_pwr = <0>;
 				resume_pwr = <1>;
-				jitter_filter_enable = <1>;
+				jitter_filter_enable = <0>;
 				jitter_curr_ratio = <26>;
-				accuracy_filter_enable = <1>;
+				accuracy_filter_enable = <0>;
 				ghost_finger_solution_enable = <0>;
 				ghost_detection_enable = <0>;
                                 ghost_detection_button_enable = <0>;

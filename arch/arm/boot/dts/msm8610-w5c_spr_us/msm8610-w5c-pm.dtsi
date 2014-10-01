@@ -118,6 +118,7 @@
 	qcom,vbatdet-delta-mv = <100>;
 	qcom,tchg-mins = <480>;
 	qcom,duty-cycle-100p = <1>;
+	qcom,btc-disabled = <1>;
 
 	qcom,chgr@1000 {
 		status = "ok";
@@ -191,7 +192,7 @@
     status = "ok";
 
     qcom,r-sense-uohm = <10000>;
-    qcom,v-cutoff-uv = <3400000>;
+    qcom,v-cutoff-uv = <3200000>;
     qcom,max-voltage-uv = <4350000>;
     qcom,r-conn-mohm = <18>;
     qcom,shutdown-soc-valid-limit = <20>;

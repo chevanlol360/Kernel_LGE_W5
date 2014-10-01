@@ -555,7 +555,7 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 
 	a_ctrl->i2c_reg_tbl =
 		kmalloc(sizeof(struct msm_camera_i2c_reg_array) *
-		(set_info->af_tuning_params.total_steps + 1), GFP_KERNEL);
+		(set_info->af_tuning_params.total_steps*2 + 1), GFP_KERNEL); /*                                                              */ 
 	if (!a_ctrl->i2c_reg_tbl) {
 		pr_err("kmalloc fail\n");
 		return -ENOMEM;

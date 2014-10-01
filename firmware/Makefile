@@ -102,12 +102,12 @@ endif
 # LGE_CHANGE - START
 # F70N KR only for same DTS usage,  2013-11-28 kyle.jeon@lge.com
 ifdef CONFIG_MACH_MSM8926_F70N_KR
-touch_synap_limit_txt := $(wildcard $(srctree)/firmware/synaptics/f70_kr/*.txt)
+touch_synap_limit_txt := $(wildcard $(srctree)/firmware/synaptics/f70n_kr/*.txt)
 $(shell objcopy -I binary -O ihex $(touch_synap_limit_txt) $(touch_synap_limit_txt).ihex)
-synaptics_img_file := $(wildcard $(srctree)/firmware/synaptics/f70_kr/*.img)
+synaptics_img_file := $(wildcard $(srctree)/firmware/synaptics/f70n_kr/*.img)
 $(foreach var, $(synaptics_img_file),  $(shell objcopy -I binary -O ihex $(var) $(var).ihex))
-synaptics_fw_list := $(subst .ihex, , $(notdir $(wildcard $(srctree)/firmware/synaptics/f70_kr/*.ihex)))
-synaptics_fw_files := $(foreach var, $(synaptics_fw_list), synaptics/f70_kr/$(var))
+synaptics_fw_list := $(subst .ihex, , $(notdir $(wildcard $(srctree)/firmware/synaptics/f70n_kr/*.ihex)))
+synaptics_fw_files := $(foreach var, $(synaptics_fw_list), synaptics/f70n_kr/$(var))
 endif
 # LGE_CHANGE - END
 

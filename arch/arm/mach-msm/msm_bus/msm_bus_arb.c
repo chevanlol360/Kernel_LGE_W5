@@ -315,6 +315,7 @@ static uint64_t get_node_maxib(struct msm_bus_inode_info *info)
 }
 //                                                                          
 
+
 /**
  * update_path() - Update the path with the bandwidth and clock values, as
  * requested by the client.
@@ -384,6 +385,7 @@ static int update_path(int curr, int pnode, uint64_t req_clk, uint64_t req_bw,
 	info->pnode[index].sel_clk = &info->pnode[index].clk[ctx &
 		cl_active_flag];
 	*info->pnode[index].sel_bw += add_bw;
+	
 //                                                                
 	*info->pnode[index].sel_clk = req_clk;
 

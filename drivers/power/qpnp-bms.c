@@ -825,8 +825,15 @@ static int get_battery_status(struct qpnp_bms_chip *chip)
 		chip->batt_psy = power_supply_get_by_name("battery");
 	if (chip->batt_psy) {
 		/* if battery has been registered, use the status property */
+#ifdef CONFIG_LGE_PM
+		/*                                                              
+                                                                       */
+		chip->batt_psy->get_property(chip->batt_psy,
+					POWER_SUPPLY_PROP_STATUS_ORIGINAL, &ret);
+#else
 		chip->batt_psy->get_property(chip->batt_psy,
 					POWER_SUPPLY_PROP_STATUS, &ret);
+#endif
 		return ret.intval;
 	}
 
@@ -837,7 +844,20 @@ static int get_battery_status(struct qpnp_bms_chip *chip)
 
 static bool is_battery_charging(struct qpnp_bms_chip *chip)
 {
-	return get_battery_status(chip) == POWER_SUPPLY_STATUS_CHARGING;
+	union power_supply_propval ret = {0,};
+
+	if (chip->batt_psy == NULL)
+		chip->batt_psy = power_supply_get_by_name("battery");
+	if (chip->batt_psy) {
+		/* if battery has been registered, use the status property */
+		chip->batt_psy->get_property(chip->batt_psy,
+					POWER_SUPPLY_PROP_CHARGE_TYPE, &ret);
+		return ret.intval != POWER_SUPPLY_CHARGE_TYPE_NONE;
+	}
+
+	/* Default to false if the battery power supply is not registered. */
+	pr_debug("battery power supply is not registered\n");
+	return false;
 }
 
 static bool is_battery_full(struct qpnp_bms_chip *chip)

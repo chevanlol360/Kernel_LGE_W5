@@ -452,6 +452,7 @@ int synaptics_ts_get_data(struct i2c_client *client, struct touch_data* data)
 
 	if ( ts->ts_data.interrupt_status_reg == 0x08 || ts->ts_data.interrupt_status_reg == 0x00 ) {
 		TOUCH_ERR_MSG("Ignore interrupt. interrupt status reg = 0x%x\n", ts->ts_data.interrupt_status_reg);
+		//goto ignore_interrupt;
 	}
 
 	num_of_finger_status_regs = (ts->num_of_data_points + 3) / 4;
@@ -531,10 +532,9 @@ int synaptics_ts_get_data(struct i2c_client *client, struct touch_data* data)
 
 			if (custom_gesture_status) {
 				for (i = 0; i < ts->multi_tap_count; i++) {
-					TOUCH_INFO_MSG("lpwg data : custom gesture status \n");
-					/* TOUCH_INFO_MSG("lpwg data %d: 0:0x%-4x 1:0x%-4x 2:0x%-4x 3:0x%-4x\n",
-							i, lpwg_data[4*i], lpwg_data[4*i+1], lpwg_data[4*i+2], lpwg_data[4*i+3]); */
-					break;
+//					TOUCH_INFO_MSG("lpwg data %d: 0:0x%-4x 1:0x%-4x 2:0x%-4x 3:0x%-4x\n",
+//							i, lpwg_data[4*i], lpwg_data[4*i+1], lpwg_data[4*i+2], lpwg_data[4*i+3]);	//multi-tap coordinates
+					TOUCH_INFO_MSG("lpwg data %d \n",i);
 				}
 			}
 
@@ -881,6 +881,7 @@ Exit :
 static int synaptics_get_inbuilt_fw_path(struct synaptics_ts_data* ts, int panel_id){
 
 	if (ts->pdata->inbuilt_fw_name) {
+		TOUCH_DEBUG_MSG("fw_image: %s\n", ts->pdata->inbuilt_fw_name);
 		return 0;
 	}
 
@@ -897,10 +898,11 @@ static int synaptics_get_inbuilt_fw_path(struct synaptics_ts_data* ts, int panel
 static int synaptics_get_panel_spec(struct synaptics_ts_data* ts, int panel_id){
 
 	if (ts->pdata->panel_spec) {
+		TOUCH_DEBUG_MSG("panel_spec: %s\n", ts->pdata->panel_spec);
 		return 0;
 	}
 
-	if(ts->pdata->panel_spec_id[panel_id] == NULL)
+	if (ts->pdata->panel_spec_id[panel_id] == NULL)
 		ts->pdata->panel_spec = ts->pdata->panel_spec_id[0];
 	else
 		ts->pdata->panel_spec = ts->pdata->panel_spec_id[panel_id];
@@ -958,7 +960,7 @@ int get_ic_info(struct synaptics_ts_data* ts, struct touch_fw_info* fw_info)
 	snprintf(fw_info->ic_fw_version, sizeof(fw_info->ic_fw_version),
 			"%s", ts->fw_info.config_id);
 
-	if(ts->pdata->caps->maker_id){
+	if (ts->pdata->caps->maker_id) {
 		panel_id = synaptics_get_panel_id(ts);
 		if (panel_id == 0xFF) {
 			TOUCH_INFO_MSG("fail get panel id\n");
@@ -1611,8 +1613,8 @@ int synaptics_ts_ic_ctrl(struct i2c_client *client, u8 code, u32 value)
 					return -EIO;
 				}
 				DO_SAFE(synaptics_ts_page_data_read(client, LPWG_CTRL_PAGE, MULTITAP_COUNT_REG, 1, &buf), error);
-				//TOUCH_DEBUG_MSG("TAP COUNT %d\n", 2);  // for double tap mode
-				TOUCH_DEBUG_MSG("Double TAP Mode\n");  // for double tap mode
+//				TOUCH_DEBUG_MSG("TAP COUNT %d\n", 2);  // for double tap mode TAP COUNT
+				TOUCH_DEBUG_MSG("Double TAP COUNT\n");
 				buf = (buf & 0x07) | (2 << 3);
 				TOUCH_DEBUG_MSG("MultiTap LPWG Control Reg value 0x%02X\n", buf);
 				DO_SAFE(synaptics_ts_page_data_write_byte(client, LPWG_CTRL_PAGE, MULTITAP_COUNT_REG, buf), error);
@@ -2130,11 +2132,11 @@ err_t synaptics_ts_lpwg(struct i2c_client* client, u32 code, u32 value, struct p
 			for(i = 0; i < ts->multi_tap_count; i++) {
 				data[i].x = (lpwg_data[4*i+1]<<8 | lpwg_data[4*i]) / ts->pdata->caps->lcd_touch_ratio_x;
 				data[i].y = (lpwg_data[4*i+3]<<8 | lpwg_data[4*i+2]) / ts->pdata->caps->lcd_touch_ratio_y;
-				//TOUCH_DEBUG_MSG("TAP Position x[%3d], y[%3d]\n", data[i].x, data[i].y);
+//				TOUCH_DEBUG_MSG("TAP Position x[%3d], y[%3d]\n", data[i].x, data[i].y);	//multi-tap coordinates
+				TOUCH_DEBUG_MSG("LPWG_READ x[###], y[###]\n");
 				// '-1' should be assinged to the last data.
 				// Each data should be converted to LCD-resolution.
 			}
-			TOUCH_DEBUG_MSG("TAP Position occured\n");
 			data[i].x = -1;
 			data[i].y = -1;
 		}
@@ -2243,8 +2245,8 @@ err_t synaptics_ts_lpwg(struct i2c_client* client, u32 code, u32 value, struct p
 		// Tap Count Control
 		if (value) {
 			DO_SAFE(synaptics_ts_page_data_read(client, LPWG_CTRL_PAGE, MULTITAP_COUNT_REG, 1, &buf), error);
-			TOUCH_DEBUG_MSG("TAP Mode\n");
-			//TOUCH_DEBUG_MSG("TAP COUNT %d \n", value);
+//			TOUCH_DEBUG_MSG("TAP COUNT %d \n", value);	//TAP COUNT
+			TOUCH_DEBUG_MSG("Multi TAP COUNT\n");
 			buf = (buf & 0x07) | (value << 3);
 			TOUCH_DEBUG_MSG("MultiTap LPWG Control Reg value 0x%02X \n", buf);
 			DO_SAFE(synaptics_ts_page_data_write_byte(client, LPWG_CTRL_PAGE, MULTITAP_COUNT_REG, buf), error);

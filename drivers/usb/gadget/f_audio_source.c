@@ -329,17 +329,18 @@ static void audio_send(struct audio_dev *audio)
 	ktime_t now;
 	unsigned long flags;
 
-	spin_lock_irqsave(&audio->lock, flags);
+	spin_lock_irqsave(&audio->lock,flags);
+	/* audio->substream will be null if we have been closed */
 	if (!audio->substream) {
-			spin_unlock_irqrestore(&audio->lock, flags);
-			return;
+		spin_unlock_irqrestore(&audio->lock,flags);
+		return;
 	}
 	/* audio->buffer_pos will be null if we have been stopped */
 	if (!audio->buffer_pos) {
-			spin_unlock_irqrestore(&audio->lock, flags);
-			return;
+		spin_unlock_irqrestore(&audio->lock,flags);
+		return;
 	}
-	spin_unlock_irqrestore(&audio->lock, flags);
+	spin_unlock_irqrestore(&audio->lock,flags);
 
 	runtime = audio->substream->runtime;
 

@@ -679,14 +679,6 @@ config LGE_PM_BMS_CC_ACCURACY_PATCH
 	depends on LGE_PM
 	help
 	  This code is workaround code for cc accuracy problem after EOC with TA.
-
-config LGE_PM_DISABLE_BTC
-	bool "Workaround disable BTC"
-	depends on LGE_PM
-	default n
-	help
-	  This code is workaround for disable QCT's BTC
-
 config LGE_WIRELESS_CHARGER_RT9536
 	bool "RT9536 wireless charger"
 	depends on LGE_PM

@@ -760,6 +760,18 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 		pr_err("%s failed %d\n", __func__, __LINE__);
 		goto ERROR1;
 	}
+	
+/*                                                                                   */
+	rc = of_property_read_u32(of_node, "qcom,maker-gpio",
+		&sensordata->sensor_init_params->maker_gpio);
+	CDBG("%s qcom,maker-gpio %d, rc %d\n", __func__,
+		sensordata->sensor_init_params->maker_gpio, rc);
+	if (rc < 0) {
+		/* Set default maker-gpio */
+		sensordata->sensor_init_params->maker_gpio = -1;
+		rc = 0;
+	}
+/*                                                                                   */
 
 	rc = of_property_read_u32(of_node, "qcom,mount-angle",
 		&sensordata->sensor_init_params->sensor_mount_angle);

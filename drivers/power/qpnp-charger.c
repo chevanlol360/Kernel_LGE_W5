@@ -311,7 +311,7 @@ struct qpnp_chg_regulator {
 };
 
 /* Charging information Debugging Log */
-#ifdef CONFIG_MACH_MSM8926_X3N_KR
+#if defined (CONFIG_MACH_MSM8926_X3N_KR) || defined(CONFIG_MACH_MSM8926_F70N_KR)
 #define CIDL
 #endif
 
@@ -837,7 +837,8 @@ qpnp_chg_is_boost_en_set(struct qpnp_chg_chip *chip)
 
 	return (boost_en_ctl & BOOST_PWR_EN) ? 1 : 0;
 }
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+/*                          */
+#ifndef CONFIG_LGE_PM
 static int
 qpnp_chg_is_batt_temp_ok(struct qpnp_chg_chip *chip)
 {
@@ -1946,7 +1947,8 @@ qpnp_chg_usb_usbin_valid_irq_handler(int irq, void *_chip)
 	return IRQ_HANDLED;
 }
 
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+/*                          */
+#ifndef CONFIG_LGE_PM
 static irqreturn_t
 qpnp_chg_bat_if_batt_temp_irq_handler(int irq, void *_chip)
 {
@@ -2309,6 +2311,9 @@ static enum power_supply_property pm_power_props_mains[] = {
 static enum power_supply_property msm_batt_power_props[] = {
 	POWER_SUPPLY_PROP_CHARGING_ENABLED,
 	POWER_SUPPLY_PROP_STATUS,
+#ifdef CONFIG_LGE_PM
+	POWER_SUPPLY_PROP_STATUS_ORIGINAL,
+#endif
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_HEALTH,
 	POWER_SUPPLY_PROP_PRESENT,
@@ -2658,6 +2663,24 @@ get_prop_charge_type(struct qpnp_chg_chip *chip)
 #endif	
 }
 
+#define DEFAULT_CAPACITY	50
+static int
+get_batt_capacity(struct qpnp_chg_chip *chip)
+{
+	union power_supply_propval ret = {0,};
+
+	if (chip->fake_battery_soc >= 0)
+		return chip->fake_battery_soc;
+	if (chip->use_default_batt_values || !get_prop_batt_present(chip))
+		return DEFAULT_CAPACITY;
+	if (chip->bms_psy) {
+		chip->bms_psy->get_property(chip->bms_psy,
+				POWER_SUPPLY_PROP_CAPACITY, &ret);
+		return ret.intval;
+	}
+	return DEFAULT_CAPACITY;
+}
+
 static int
 get_prop_batt_status(struct qpnp_chg_chip *chip)
 {
@@ -2732,13 +2755,36 @@ get_prop_batt_status(struct qpnp_chg_chip *chip)
 
 	}
 
-	if (chgr_sts & TRKL_CHG_ON_IRQ && bat_if_sts & BAT_FET_ON_IRQ)
+	if ((chgr_sts & TRKL_CHG_ON_IRQ) && !(bat_if_sts & BAT_FET_ON_IRQ))
 		return POWER_SUPPLY_STATUS_CHARGING;
 	if (chgr_sts & FAST_CHG_ON_IRQ && bat_if_sts & BAT_FET_ON_IRQ)
 		return POWER_SUPPLY_STATUS_CHARGING;
 
+	/* report full if state of charge is 100 and a charger is connected*/
+	if ((qpnp_chg_is_usb_chg_plugged_in(chip) ||
+		qpnp_chg_is_dc_chg_plugged_in(chip))
+			&& get_batt_capacity(chip) == 100) {
+		return POWER_SUPPLY_STATUS_FULL;
+	}
+
 	return POWER_SUPPLY_STATUS_DISCHARGING;
 }
+
+#ifdef CONFIG_LGE_PM
+static int
+get_prop_batt_status_lge(struct qpnp_chg_chip *chip)
+{
+
+	/* report full if state of charge is 100, even if phone is charging */
+	if ((qpnp_chg_is_usb_chg_plugged_in(chip) ||
+		qpnp_chg_is_dc_chg_plugged_in(chip))
+			&& get_batt_capacity(chip) >= 100) {
+		return POWER_SUPPLY_STATUS_FULL;
+	} else {
+		return get_prop_batt_status(chip);
+	}
+}
+#endif
 
 static int
 get_prop_current_now(struct qpnp_chg_chip *chip)
@@ -3451,9 +3497,18 @@ qpnp_batt_power_get_property(struct power_supply *psy,
 								batt_psy);
 
 	switch (psp) {
+#ifdef CONFIG_LGE_PM
+	case POWER_SUPPLY_PROP_STATUS:
+		val->intval = get_prop_batt_status_lge(chip);	/*for Userspace*/
+		break;
+	case POWER_SUPPLY_PROP_STATUS_ORIGINAL:
+		val->intval = get_prop_batt_status(chip);	/*for Kernel (BMS) */
+		break;
+#else
 	case POWER_SUPPLY_PROP_STATUS:
 		val->intval = get_prop_batt_status(chip);
 		break;
+#endif
 	case POWER_SUPPLY_PROP_CHARGE_TYPE:
 		val->intval = get_prop_charge_type(chip);
 		break;
@@ -3596,6 +3651,8 @@ qpnp_chg_bat_if_configure_btc(struct qpnp_chg_chip *chip)
 #ifdef CONFIG_LGE_PM_FACTORY_PSEUDO_BATTERY
 
 	if (pseudo_batt_info.mode) {   // pseudo == 1 , btc is disable.
+		mask |= BTC_CONFIG_ENABLED;
+	} else if (chip->btc_disabled) {
 		mask |= BTC_CONFIG_ENABLED;
 	} else {                      // pseudo ==0, btc is enable.
 		mask |= BTC_CONFIG_ENABLED;
@@ -5197,7 +5254,8 @@ qpnp_chg_request_irqs(struct qpnp_chg_chip *chip)
 
 			enable_irq_wake(chip->batt_pres.irq);
 
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+/*                          */
+#ifndef CONFIG_LGE_PM
 			chip->batt_temp_ok.irq = spmi_get_irq_byname(spmi,
 						spmi_resource, "bat-temp-ok");
 			if (chip->batt_temp_ok.irq < 0) {
@@ -6190,6 +6248,7 @@ static void charging_information(struct work_struct *work)
 	int usb_in=0;	int qpnp_volt=0;	int qpnp_soc=0;		int iusb_max=0;		int ibat_max=0;
 	int ibat=0;		u8 chg_ctrl=0;	u8 bat_fet_sts=0;		u8 bat_if_sts=0;
 	int bat_temp=0;	u8 chg_sts=0;		int cable_info=0;
+	int vin_min_mv=0;
 
 	struct delayed_work		*dwork = to_delayed_work(work);
 	struct qpnp_chg_chip		*chip = container_of(dwork,struct qpnp_chg_chip,charging_inform_work);
@@ -6206,10 +6265,11 @@ static void charging_information(struct work_struct *work)
 	rc = qpnp_chg_read(chip, &bat_if_sts, INT_RT_STS(chip->bat_if_base), 1);
 	bat_temp = get_prop_batt_temp(chip)/10;
 	cable_info = lge_pm_get_cable_type();
+	vin_min_mv = qpnp_chg_vinmin_get(chip);
 
-	pr_info("[C], USB_IRQ, Qpnp_Volt, Qpnp_SOC, IUSB_MAX, IBAT_MAX, IBAT_NOW, CHG_CTRL, BAT_FET_STS, CHG_STS, BAT_IF_STS, BAT_TEMP, Cable_info\n");
-	pr_info("[I], %d , %d , %d , %d , %d , %d , 0x%x , 0x%x , 0x%x , 0x%x , %d , %d(11)\n",
-		usb_in,qpnp_volt,qpnp_soc,iusb_max,ibat_max,ibat,chg_ctrl,bat_fet_sts,chg_sts,bat_if_sts,bat_temp,cable_info);
+	pr_info("[C], USB_IRQ, Qpnp_Volt, Qpnp_SOC, VINMIN_MV, IUSB_MAX, IBAT_MAX, IBAT_NOW, CHG_CTRL, BAT_FET_STS, CHG_STS, BAT_IF_STS, BAT_TEMP, Cable_info\n");
+	pr_info("[I], %d , %d , %d , %d , %d , %d , %d , 0x%x , 0x%x , 0x%x , 0x%x , %d , %d(11)\n",
+				usb_in,qpnp_volt,qpnp_soc, vin_min_mv,iusb_max,ibat_max,ibat,chg_ctrl,bat_fet_sts,chg_sts,bat_if_sts,bat_temp,cable_info);
 
 	ret = schedule_delayed_work(&chip->charging_inform_work,
 		round_jiffies_relative(msecs_to_jiffies(CHARGING_INFORM_NORMAL_TIME)));

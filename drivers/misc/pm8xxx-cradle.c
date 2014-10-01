@@ -31,7 +31,7 @@ struct pm8xxx_cradle {
 	int state;
 };
 
-#if defined(CONFIG_MACH_MSM8X10_W5_MPCS_US) || defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5_AIO_US) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US) || defined(CONFIG_MACH_MSM8X10_W5_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5C_TRF_US)
+#if defined(CONFIG_MACH_MSM8X10_W5_MPCS_US) || defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5_AIO_US) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US) || defined(CONFIG_MACH_MSM8X10_W5_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5C_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5_CCA_US)
 #define POUCH_DETECT_DELAY 100
 #endif
 
@@ -122,7 +122,7 @@ static irqreturn_t pm8xxx_pouch_irq_handler(int irq, void *handle)
 	struct pm8xxx_cradle *cradle_handle = handle;
 	int v = 200;
 	printk("pouch irq!!!!\n");
-#if defined(CONFIG_MACH_MSM8X10_W5_MPCS_US) || defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5_AIO_US) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US) || defined(CONFIG_MACH_MSM8X10_W5_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5C_TRF_US)
+#if defined(CONFIG_MACH_MSM8X10_W5_MPCS_US) || defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5_AIO_US) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US) || defined(CONFIG_MACH_MSM8X10_W5_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5C_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5_CCA_US)
 	v = 1 + 1*(!gpio_get_value(cradle->pdata->hallic_pouch_detect_pin));
 	wake_lock_timeout(&cradle->wake_lock, msecs_to_jiffies(POUCH_DETECT_DELAY*v+5));
 	queue_delayed_work(cradle_wq, &cradle_handle->pouch_work, msecs_to_jiffies(POUCH_DETECT_DELAY*v+5));
