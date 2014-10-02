@@ -1,0 +1,13 @@
+on boot
+
+#LGE_CHANGE_S, for LP5521 RGB_LED
+    chown system system /sys/class/leds/R/device/led_current_index
+    chown system system /sys/class/leds/R/device/led_pattern
+    chown system system /sys/class/leds/R/device/led_blink
+    chown system system /sys/class/leds/R/brightness
+    chown system system /sys/class/leds/G/brightness
+    chown system system /sys/class/leds/B/brightness
+    chown system system /sys/class/leds/R/led_current
+    chown system system /sys/class/leds/G/led_current
+    chown system system /sys/class/leds/B/led_current
+#LGE_CHANGE_E, for LP5521 RGB_LED

@@ -410,9 +410,6 @@ on property:sys.sysctl.extra_free_kbytes=*
 
 ## Daemon processes to be run by init.
 ##
-service sysinit /system/bin/sysinit
-    oneshot
-
 service ueventd /sbin/ueventd
     class core
     critical
@@ -510,6 +507,10 @@ service drm /system/bin/drmserver
 #[G2_Player][kitak.moon@lge.com] Add sdcard_r/sdcard_rw permission of DRMServer for SKT hoppin service on KK
     #group drm system inet drmrpc
     group drm system inet drmrpc radio sdcard_r sdcard_rw
+
+service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    disabled
+    oneshot
 
 service media /system/bin/mediaserver
     class main

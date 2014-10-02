@@ -76,6 +76,7 @@ if [ -f /system/etc/usf_settings.sh ]; then
 fi
 
 touch /system/etc/boot_fixup
+chmod 644 /system/etc/boot_fixup
 
 if $mount_needed ;then
 # This should be the last command

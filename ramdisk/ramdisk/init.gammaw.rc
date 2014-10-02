@@ -891,14 +891,30 @@ service ssr_diag /system/bin/ssr_diag
     user system
     group system
 
+service ssr_setting /system/bin/sh /init.gammaw.ssr.sh ${persist.sys.ssr.restart_level} ${ro.build.type}
+    class late_start
+    user root
+    group system
+    disabled
+    oneshot
+
+service wifi_ssr_setting /system/bin/sh /system/etc/init.gammaw.ssr.wifi.sh ${persist.sys.ssr.restart_level_w}
+    class late_start
+    user root
+    group system
+    disabled
+    oneshot
+
 # SSR setting
 on property:persist.sys.ssr.restart_level=*
-    exec /system/bin/sh /init.gammaw.ssr.sh ${persist.sys.ssr.restart_level} ${ro.build.type}
+     start ssr_setting
+#    exec /system/bin/sh /init.gammaw.ssr.sh ${persist.sys.ssr.restart_level} ${ro.build.type}
 
 # [BEGIN][LGE_WIFI][QCT][neo-wifi@lge.com] add riva_ramdump service
 # WIFI SSR settings
 on property:persist.sys.ssr.restart_level_w=*
-    exec /system/bin/sh /system/etc/init.gammaw.ssr.wifi.sh ${persist.sys.ssr.restart_level_w}
+     start wifi_ssr_setting
+#    exec /system/bin/sh /system/etc/init.gammaw.ssr.wifi.sh ${persist.sys.ssr.restart_level_w}
 # [END][LGE_WIFI][QCT][neo-wifi@lge.com] add riva_ramdump service
 
 # [BEGIN][LGE_WIFI][QCT][neo-wifi@lge.com] set SSR3 and rivadump enable depends on buildtype
