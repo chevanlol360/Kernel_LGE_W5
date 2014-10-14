@@ -368,6 +368,7 @@ struct mdss_mdp_pipe {
 	u8 overfetch_disable;
 	u32 transp;
 	u32 bg_color;
+	u8 has_buf;
 
 	struct msm_fb_data_type *mfd;
 	struct mdss_mdp_mixer *mixer;
@@ -668,4 +669,9 @@ int mdss_mdp_pipe_program_pixel_extn(struct mdss_mdp_pipe *pipe);
 				(mfd->mdp.private1))->wb)
 
 int  mdss_mdp_ctl_reset(struct mdss_mdp_ctl *ctl);
+
+#if defined(CONFIG_MACH_MSM8926_X5_VZW) || defined(CONFIG_MACH_MSM8926_X5_SPR)
+void change_wb_block_request_num_to_high(void);
+void change_wb_block_request_num_to_low(void);
+#endif
 #endif /* MDSS_MDP_H */

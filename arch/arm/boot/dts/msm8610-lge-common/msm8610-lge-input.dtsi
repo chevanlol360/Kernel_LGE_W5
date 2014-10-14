@@ -328,8 +328,7 @@
 			synaptics,reset-gpio = <&msmgpio 0 0x00>;
 			synaptics,irq-gpio = <&msmgpio 1 0x02>;
 			synaptics,maker = "Synaptics";
-			synaptics,fw_version_info = <0x00 0x00 0x00>; /* Maker Key Supplier inch0 inch1 panel */
-									/* Maker if 8 : diversify panel */
+			synaptics,fw_version_info = <0x00 0x00 0x00>;
 			/*if LCD Resolution : Touch Resolution = 1:1 then set 5 or LCD Resolution : Touch Resolution = 1:2 then set 10 */
 			synaptics,global_access_pixel = <5>; 
 			synaptics,platform_data	{
@@ -398,8 +397,7 @@
 			synaptics,reset-gpio = <&msmgpio 0 0x00>;
 			synaptics,irq-gpio = <&msmgpio 1 0x02>;
 			synaptics,maker = "Synaptics";
-			synaptics,fw_version_info = <0x00 0x00 0x00>;  /* Maker Key Supplier inch0 inch1 panel */
-									/* Maker if 8 : diversify panel */
+			synaptics,fw_version_info = <0x00 0x00 0x00>;
 			synaptics,platform_data	{
 				/*Caps*/
 				panel_type = <0>;
@@ -438,9 +436,7 @@
 				accuracy_filter_enable = <0>;
 				ghost_finger_solution_enable = <0>;
 				ghost_detection_enable = <0>;
-				ghost_detection_button_enable = <0>;
-				/*booting time, duration, jitter, finger diff, subtraction time, finger-subtraction-cnt, force-cont-mode,long press cnt, button duration, button int num, time after rebase*/
-				ghost_detection_value = <200 50 10 6 11 5 10 500 100 6 5>;
+				ghost_detection_jitter_value = <10>;
 				irqflags = <0x00000002>;
 				/*pwr*/
 				use_regulator = <0>;

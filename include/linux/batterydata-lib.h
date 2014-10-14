@@ -18,19 +18,11 @@
 #define FCC_CC_COLS		5
 #define FCC_TEMP_COLS		8
 
-#if defined(CONFIG_MACH_MSM8226_E9WIFI_OPEN_KR) || defined(CONFIG_MACH_MSM8226_E7WIFI_OPEN_KR) || defined(CONFIG_MACH_MSM8226_E7LTE_OPEN_KR)
-#define PC_CC_ROWS             30
-#define PC_CC_COLS             13
-
-#define PC_TEMP_ROWS		31
-#define PC_TEMP_COLS		8
-#else
 #define PC_CC_ROWS             31
 #define PC_CC_COLS             13
 
 #define PC_TEMP_ROWS		31
 #define PC_TEMP_COLS		8
-#endif
 
 #define MAX_SINGLE_LUT_COLS	20
 
@@ -91,9 +83,6 @@ enum battery_type {
 	BATT_OEM,
 	BATT_QRD_4V35_2000MAH,
 	BATT_QRD_4V2_1300MAH,
-#ifdef CONFIG_LGE_PM
-	BATT_4600_LGE
-#endif
 };
 
 /**
@@ -171,8 +160,6 @@ extern struct bms_battery_data LGE_Hitaci_2040mAh_data;
 #elif defined(CONFIG_LGE_PM_BATTERY_CAPACITY_3200mAh)
 extern struct bms_battery_data LGE_BL_47TH_3200mAh_LG_Chem_data;
 extern struct bms_battery_data LGE_BL_47TH_3200mAh_Tocad_data;
-#elif defined(CONFIG_LGE_PM_BATTERY_CAPACITY_4600mAh)
-extern struct bms_battery_data LGE_LGC_4600mAH_data;
 #else
 extern struct bms_battery_data LGE_BL_54SH_2540mAh_LG_Chem_data;
 #endif

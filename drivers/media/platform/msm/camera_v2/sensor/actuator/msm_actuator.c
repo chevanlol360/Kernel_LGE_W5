@@ -81,8 +81,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 	uint16_t value = 0;
 	uint32_t size = a_ctrl->reg_tbl_size, i = 0;
 	struct msm_camera_i2c_reg_array *i2c_tbl = a_ctrl->i2c_reg_tbl;
-	uint16_t actuator_name = a_ctrl->cam_name;
-	CDBG("%s: Enter af_cam_name(%d)\n", __func__, actuator_name);
+	CDBG("Enter\n");
 	for (i = 0; i < size; i++) {
 #if 1
 		/* check that the index into i2c_tbl cannot grow larger that
@@ -106,38 +105,39 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 			if (write_arr[i].reg_addr != 0xFFFF) {
 				i2c_byte1 = write_arr[i].reg_addr;
 				i2c_byte2 = value;
-				/*                                                                                                 */
-				switch (actuator_name) {
-				case ACTUATOR_MAIN_CAM_2:
-					if (size != (i+1)) {
-						i2c_byte2 = (value & 0xFF00) >> 8;
-						CDBG("byte1:0x%x, byte2:0x%x\n", i2c_byte1, i2c_byte2);
-						i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
-						i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
-						i2c_tbl[a_ctrl->i2c_tbl_index].delay = 0;
-						a_ctrl->i2c_tbl_index++;
-						i++;
-						i2c_byte1 = write_arr[i].reg_addr;
-						i2c_byte2 = (value & 0x00FF);
-					}
-					break;
-				case ACTUATOR_MAIN_CAM_0:
-				case ACTUATOR_MAIN_CAM_1:
-				default:
+#if defined(CONFIG_IMX179) || defined(CONFIG_IMX219) /*                                                                 */ 
+				if (size != (i+1)) {
+					i2c_byte2 = (value & 0xFF00) >> 8;
+					CDBG("byte1:0x%x, byte2:0x%x\n",
+						i2c_byte1, i2c_byte2);
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						reg_addr = i2c_byte1;
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						reg_data = i2c_byte2;
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						delay = 0;
+					a_ctrl->i2c_tbl_index++;
+					i++;
+					i2c_byte1 = write_arr[i].reg_addr;
+					i2c_byte2 = (value & 0x00FF);
+				}
+#else
 					if (size != (i+1)) {
 					i2c_byte2 = value & 0xFF;
-					CDBG("byte1:0x%x, byte2:0x%x\n",i2c_byte1, i2c_byte2);
-					i2c_tbl[a_ctrl->i2c_tbl_index].reg_addr = i2c_byte1;
-					i2c_tbl[a_ctrl->i2c_tbl_index].reg_data = i2c_byte2;
-					i2c_tbl[a_ctrl->i2c_tbl_index].delay = 0;
+					CDBG("byte1:0x%x, byte2:0x%x\n",
+						i2c_byte1, i2c_byte2);
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						reg_addr = i2c_byte1;
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						reg_data = i2c_byte2;
+					i2c_tbl[a_ctrl->i2c_tbl_index].
+						delay = 0;
 					a_ctrl->i2c_tbl_index++;
 					i++;
 					i2c_byte1 = write_arr[i].reg_addr;
 					i2c_byte2 = (value & 0xFF00) >> 8;
-					}
-					break;
 				}
-				/*                                                                                                */
+#endif
 			} else {
 				i2c_byte1 = (value & 0xFF00) >> 8;
 				i2c_byte2 = value & 0xFF;
@@ -186,7 +186,7 @@ static int32_t msm_actuator_init_focus(struct msm_actuator_ctrl_t *a_ctrl,
 			break;
 	}
 
-	a_ctrl->curr_step_pos = 1;  /*                                                                   */
+	a_ctrl->curr_step_pos = 0;
 	CDBG("Exit\n");
 	return rc;
 }
@@ -606,10 +606,8 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 		rc = a_ctrl->func_tbl->
 			actuator_init_step_table(a_ctrl, set_info);
 
-/*                                                                     */
-	a_ctrl->curr_step_pos = 1;
-	a_ctrl->curr_region_index = 1;
-/*                                                                     */
+	a_ctrl->curr_step_pos = 0;
+	a_ctrl->curr_region_index = 0;
 	CDBG("Exit\n");
 
 	return rc;
@@ -626,7 +624,6 @@ static int32_t msm_actuator_config(struct msm_actuator_ctrl_t *a_ctrl,
 	CDBG("%s type %d\n", __func__, cdata->cfgtype);
 	switch (cdata->cfgtype) {
 	case CFG_GET_ACTUATOR_INFO:
-		CDBG("%s CFG_GET_ACTUATOR_INFO %d\n", __func__,  a_ctrl->cam_name);
 		cdata->is_af_supported = 1;
 		cdata->cfg.cam_name = a_ctrl->cam_name;
 		break;

@@ -42,7 +42,6 @@ u32 totalErrTS=0;
 unsigned char ch_num = 0;
 
 u8 scan_mode;
-static u8 drv_open_state = 0;
 
 ISDBT_MODE driver_mode = ISDBT_POWEROFF;
 
@@ -347,11 +346,7 @@ int isdbt_open (struct inode *inode, struct file *filp)
 	static u8 temp[RING_BUFFER_SIZE];
 	PRINTF(hInit, "isdbt open\n");
 
-	if(drv_open_state == 0)
-	{
-		mutex_lock(&ringbuffer_lock);
-		
-		hOpen = (ISDBT_OPEN_INFO_T *)kmalloc(sizeof(ISDBT_OPEN_INFO_T), GFP_KERNEL);
+	hOpen = (ISDBT_OPEN_INFO_T *)kmalloc(sizeof(ISDBT_OPEN_INFO_T), GFP_KERNEL);
 
 	//hOpen->buf = (u8 *)kmalloc(RING_BUFFER_SIZE, GFP_KERNEL);
 	hOpen->buf = temp;
@@ -369,12 +364,7 @@ int isdbt_open (struct inode *inode, struct file *filp)
 
 	fci_ringbuffer_init(&hOpen->RingBuffer, hOpen->buf, RING_BUFFER_SIZE);
 
-		filp->private_data = hOpen;
-
-		drv_open_state = 1;
-
-		mutex_unlock(&ringbuffer_lock);
-	}
+	filp->private_data = hOpen;
 
 	return 0;
 }
@@ -488,27 +478,14 @@ int isdbt_release (struct inode *inode, struct file *filp)
 {
 	ISDBT_OPEN_INFO_T *hOpen;
 
-	if(drv_open_state == 1)
-	{
-		mutex_lock(&ringbuffer_lock);
-
-		PRINTF(0, "isdbt_release Start!!!\n");
-
-		hOpen = filp->private_data;
+	hOpen = filp->private_data;
 
 	hOpen->isdbttype = 0;
 
 	list_del(&(hOpen->hList));
 
-	//	kfree(hOpen->buf);
-		kfree(hOpen);
-
-		filp->private_data = 0;
-
-		drv_open_state = 0;
-
-		mutex_unlock(&ringbuffer_lock);
-	}
+//	kfree(hOpen->buf);
+	kfree(hOpen);
 
 	return 0;
 }
@@ -1067,7 +1044,6 @@ int isdbt_init(void)
 
 	INIT_LIST_HEAD(&(hInit->hHead));
 
-	drv_open_state = 0;
 	return 0;
 #endif
 }

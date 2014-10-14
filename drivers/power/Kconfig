@@ -505,12 +505,6 @@ config LGE_PM
 	  Power Management, Battery charging, Battery Monitoring System
 	  with battery FET and fuel gauge.
 
-config EXTERNAL_FUELGAUGE
-	tristate "extenal fuel gauging external driver"
-	depends on I2C && LGE_PM
-	default n
-	help
-	  Say Y here to enable support for external fuel gauge chip lge feature.
 config MAX17048_FUELGAUGE
 	tristate "Maxim MAX17048 fuel gauging external driver"
 	depends on I2C && LGE_PM
@@ -638,6 +632,12 @@ config LGE_PM_VZW_FAST_CHG
 	help
 	  Say Y here to meet VZW requirement.
 
+config LGE_PM_VZW_HIGH_TEMP_PWR_OFF
+	bool "Notify power-off due to high temperature in chargerlogo"
+	depends on LGE_PM
+	help
+	  Say Y here to notify in chargerlogo when occurring power-off due to high temperature
+
 config LGE_PM_VZW_LLK
 	bool "VZW store mode"
 	depends on LGE_PM
@@ -680,17 +680,4 @@ config LGE_PM_BMS_CC_ACCURACY_PATCH
 	help
 	  This code is workaround code for cc accuracy problem after EOC with TA.
 
-config LGE_PM_DISABLE_BTC
-	bool "Workaround disable BTC"
-	depends on LGE_PM
-	default n
-	help
-	  This code is workaround for disable QCT's BTC
-
-config LGE_WIRELESS_CHARGER_RT9536
-	bool "RT9536 wireless charger"
-	depends on LGE_PM
-	default n
-	help
-	   Say Y here to support rt9536 wireless charger
 endif # POWER_SUPPLY

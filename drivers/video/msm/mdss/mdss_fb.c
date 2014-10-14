@@ -70,7 +70,7 @@ unsigned long msm_fb_phys_addr_backup;
 #define MDSS_FB_NUM 2
 #endif
 
-#if defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3N_KR) || defined(CONFIG_MACH_MSM8926_F70N_KR) || defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || defined(CONFIG_MACH_MSM8926_F70N_GLOBAL_COM) || \
+#if defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3_KR) || defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || \
 	defined(CONFIG_MACH_MSM8926_X3N_GLOBAL_COM)
 #define UI_BL_OFF		0
 #define UI_0_BL			10
@@ -257,7 +257,7 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	pr_info("value=%d, cal_value=%d\n", value, cal_value);
 #else
 
-#if defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3N_KR) || defined(CONFIG_MACH_MSM8926_F70N_KR) || defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || defined(CONFIG_MACH_MSM8926_F70N_GLOBAL_COM) || \
+#if defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3_KR) || defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || \
 	defined(CONFIG_MACH_MSM8926_X3N_GLOBAL_COM)
 	if(value >= UI_BL_OFF && value <= UI_0_BL)
 		bl_lvl = (value - UI_BL_OFF) * (LGE_0_BL - LGE_BL_OFF) / (UI_0_BL - UI_BL_OFF) + LGE_BL_OFF;
@@ -288,11 +288,6 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 		mutex_lock(&mfd->bl_lock);
 		mdss_fb_set_backlight(mfd, bl_lvl);
 		mutex_unlock(&mfd->bl_lock);
-
-        if (mfd->bl_updated == 0 && mfd->disp_updated == 1)
-		{
-             mdss_fb_update_backlight(mfd);
-		}
 	}
 }
 
@@ -898,7 +893,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			curr_pwr_state = mfd->panel_power_on;
 			mfd->panel_power_on = false;
 			mfd->bl_updated = 0;
-			mfd->disp_updated = 0;
 
 			ret = mfd->mdp.off_fnc(mfd);
 			if (ret)
@@ -1786,8 +1780,6 @@ static int __mdss_fb_perform_commit(struct msm_fb_data_type *mfd)
 	if (!ret)
 		mdss_fb_update_backlight(mfd);
 
-	if (mfd->disp_updated == 0)
-		mfd->disp_updated = 1;
 	if (IS_ERR_VALUE(ret) || !sync_pt_data->flushed)
 		mdss_fb_signal_timeline(sync_pt_data);
 

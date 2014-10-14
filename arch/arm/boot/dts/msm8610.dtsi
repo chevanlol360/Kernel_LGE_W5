@@ -256,7 +256,7 @@
 		compatible = "qcom,android-usb";
 		reg = <0xfe8050c8 0xc8>;
 		qcom,android-usb-swfi-latency = <1>;
-		qcom,streaming-func = "rndis", "ecm", "mtp";
+		qcom,streaming-func = "rndis";
 	};
 
 	rmtfs_sharedmem {
@@ -635,16 +635,15 @@
 		qcom,model = "msm8x10-snd-card";
 	};
 
-	qti,msm-pcm {
-		compatible = "qti,msm-pcm-dsp";
-		qti,msm-pcm-dsp-id = <0>;
+	qcom,msm-pcm {
+		compatible = "qcom,msm-pcm-dsp";
+		qcom,msm-pcm-dsp-id = <0>;
 	};
 
-	qti,msm-pcm-low-latency {
-		compatible = "qti,msm-pcm-dsp";
-		qti,msm-pcm-dsp-id = <1>;
-		qti,msm-pcm-low-latency;
-		qti,latency-level = "ultra";
+	qcom,msm-pcm-low-latency {
+		compatible = "qcom,msm-pcm-dsp";
+		qcom,msm-pcm-dsp-id = <1>;
+		qcom,msm-pcm-low-latency;
 	};
 
 	qcom,msm-pcm-routing {

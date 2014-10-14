@@ -45,9 +45,6 @@ enum {
 	POWER_SUPPLY_CHARGE_TYPE_NONE,
 	POWER_SUPPLY_CHARGE_TYPE_TRICKLE,
 	POWER_SUPPLY_CHARGE_TYPE_FAST,
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	POWER_SUPPLY_CHARGE_TYPE_WIRELESS,
-#endif
 };
 
 enum {
@@ -160,9 +157,6 @@ enum power_supply_property {
 #ifdef CONFIG_LGE_PM_VZW_FAST_CHG
 	POWER_SUPPLY_PROP_VZW_CHG_STATE,
 #endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	POWER_SUPPLY_PROP_USE_FUELGAUGE,
-#endif
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_PROP_MODEL_NAME,
 	POWER_SUPPLY_PROP_MANUFACTURER,
@@ -179,12 +173,6 @@ enum power_supply_type {
 	POWER_SUPPLY_TYPE_USB_CDP,	/* Charging Downstream Port */
 	POWER_SUPPLY_TYPE_USB_ACA,	/* Accessory Charger Adapters */
 	POWER_SUPPLY_TYPE_BMS,		/* Battery Monitor System */
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	POWER_SUPPLY_TYPE_FUELGAUGE,
-#endif
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	POWER_SUPPLY_TYPE_WIRELESS,
-#endif
 };
 
 union power_supply_propval {
@@ -233,9 +221,6 @@ struct power_supply {
 	char *online_trig_name;
 	struct led_trigger *charging_blink_full_solid_trig;
 	char *charging_blink_full_solid_trig_name;
-#endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	int use_external_fuelgauge;
 #endif
 };
 

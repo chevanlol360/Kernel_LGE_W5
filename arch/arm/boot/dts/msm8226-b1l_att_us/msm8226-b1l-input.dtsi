@@ -48,21 +48,12 @@
 			status = "ok";
 		};
 		lge_ts_misc {
-			revision = "rev_a";
+			revision = "...rev_a";
 			vdd_on = <1>;
 			vio_l19_on = <1>;
 			vio_lvs1_on = <1>;
 			irq_wake = <0>;
 			status ="ok";
-		};
-		lge_ts_misc_rev_0 {
-			compatible = "lge,ts_misc";
-			vdd_on = <1>;
-			vio_l19_on = <1>;
-			vio_lvs1_on = <1>;
-			irq_wake = <0>;
-			status ="okay";
-			revision = "rev_0";
 		};
 	};
 };

@@ -85,8 +85,6 @@
 				/*maker_id  disable(0), enable(1)*/
 				maker_id = <1>;
 				maker_id_gpio = <76>;
-                                palm_detect_mode = <1>;
-                                ghost_detection_enable = <0>;
 			};		
 		};
 	};

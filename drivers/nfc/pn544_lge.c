@@ -561,7 +561,7 @@ static int pn544_probe(struct i2c_client *client,
 
     pn544_gpio_enable(pn544_dev);
 
-    ret = gpio_direction_output(pn544_dev->ven_gpio,1);
+    ret = gpio_direction_output(pn544_dev->ven_gpio,0);
     ret = gpio_direction_output(pn544_dev->firm_gpio,0);
     ret = gpio_direction_input(pn544_dev->irq_gpio);
 

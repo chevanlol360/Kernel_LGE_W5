@@ -11,16 +11,6 @@
  */
 
 &soc {
-	gpio_keys {
-		home {
-			unused;
-		};
-
-		quick_clip {
-			unused;
-		};
-	};
-
 	i2c@f9927000 { /* BLSP1 QUP5 */
 		synaptics_red@20 {
 			synaptics,reset-gpio = <&msmgpio 16 0x00>;
@@ -33,7 +23,7 @@
 			synaptics,reset-gpio = <&msmgpio 16 0x00>;
 			synaptics,fw_version = <0x32 0x04 0x51 0x01>;
 			synaptics,fw_version_info = <0x32 0x04 0x51>;
-			synaptics,fw_image = "synaptics/b2l_att_us/PLG126-E029-PR1383035-DS4.3.5.1.16.img";
+			synaptics,fw_image = "synaptics/b1l_att_us/PLG126-E029-PR1383035-DS4.3.5.1.16.img";
 			synaptics,platform_data	{
 				number_of_button = <2>;
 				button_name = [9e 8b];
@@ -56,23 +46,6 @@
 		atmel_s540@4a {
 			revision = "rev_a...";
 			status = "ok";
-		};
-		lge_ts_misc {
-			revision = "rev_a";
-			vdd_on = <1>;
-			vio_l19_on = <1>;
-			vio_lvs1_on = <1>;
-			irq_wake = <0>;
-			status ="ok";
-		};
-		lge_ts_misc_rev_0 {
-			compatible = "lge,ts_misc";
-			vdd_on = <1>;
-			vio_l19_on = <1>;
-			vio_lvs1_on = <1>;
-			irq_wake = <0>;
-			status ="okay";
-			revision = "rev_0";
 		};
 	};
 };

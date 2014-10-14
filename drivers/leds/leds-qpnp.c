@@ -939,6 +939,7 @@ static int qpnp_flash_set(struct qpnp_led_data *led)
 	if (val > 0) {
 		if (led->flash_cfg->torch_enable) {
 
+			usleep(FLASH_RAMP_UP_DELAY_US);  /*                                                                                                */
 
 			if (led->flash_cfg->peripheral_subtype ==
 							FLASH_SUBTYPE_DUAL) {
@@ -1633,6 +1634,9 @@ static int __devinit qpnp_wled_init(struct qpnp_led_data *led)
 
 	}
 #if defined(CONFIG_LGE_TOVIS_540P_PANEL_CABC)
+#ifndef CONFIG_FB_MSM_MIPI_TIANMA_VIDEO_QHD_PT_PANEL
+if(!gpio_get_value(23)){
+#endif
 	rc = qpnp_led_masked_write(led, WLED1_LED1_CABC_EN(led->base),
 			WLED_CABC_EN_MASK,WLED_CABC_EN_ON);
 	pr_info("%s:cabc write",__func__);
@@ -1641,6 +1645,10 @@ static int __devinit qpnp_wled_init(struct qpnp_led_data *led)
 				"WLED cabc_en reg write failed(%d)\n",rc);
 		return rc;
 	}
+#ifndef CONFIG_FB_MSM_MIPI_TIANMA_VIDEO_QHD_PT_PANEL
+}else
+	pr_info("%s:cabc not write. lcd maker id: %d",__func__, gpio_get_value(23));
+#endif
 #elif defined(CONFIG_LGE_TOVIS_ILI9806E_WVGA_PANEL_CABC)
 	rc = qpnp_led_masked_write(led, WLED1_LED1_CABC_EN(led->base),
 			WLED_CABC_EN_MASK,WLED_CABC_EN_ON);
@@ -2214,122 +2222,6 @@ static ssize_t blink_store(struct device *dev,
 	return count;
 }
 
-#if defined(CONFIG_LGE_X10_VZW_LED) || defined(CONFIG_LGE_JAG_LED)
-static int g_type = 0;
-static void red_led_blink(struct qpnp_led_data *led,
-			struct pwm_config_data *pwm_cfg, int type, int offMS, int onMS, int blinking)
-{
-
-	printk(KERN_INFO "%s(), LINE:%d type:%d, offMS:%d, onMS:%d, brightness:%d, flag:%d\n"
-			,__func__, __LINE__, type, offMS, onMS, led->cdev.brightness, led->cdev.flags);
-	if (pwm_cfg->use_blink) {
-		if (led->cdev.brightness) {
-			pwm_cfg->blinking = true;
-			if (led->id == QPNP_ID_LED_MPP)
-				led->mpp_cfg->pwm_mode = LPG_MODE;
-			pwm_cfg->mode = LPG_MODE;
-		} else {
-			pwm_cfg->blinking = false;
-			pwm_cfg->mode = pwm_cfg->default_mode;
-			if (led->id == QPNP_ID_LED_MPP)
-				led->mpp_cfg->pwm_mode = pwm_cfg->default_mode;
-		}
-		if((0 == type) && (0 == offMS) && (0 == onMS) && (0 == led->cdev.brightness)) {
-			pwm_cfg->blinking = false;
-			pwm_cfg->mode = pwm_cfg->default_mode;
-			if (led->id == QPNP_ID_LED_MPP)
-				led->mpp_cfg->pwm_mode = pwm_cfg->default_mode;
-			pwm_free(pwm_cfg->pwm_dev);
-			qpnp_pwm_init(pwm_cfg, led->spmi_dev, led->cdev.name);
-			qpnp_led_set(&led->cdev, led->cdev.brightness);
-		}
-		else if((0 != type) && (0 == offMS) && (0 == onMS) && (0 != led->cdev.brightness)) {
-			pwm_cfg->blinking = false;
-			pwm_cfg->mode = pwm_cfg->default_mode;
-			if (led->id == QPNP_ID_LED_MPP)
-				led->mpp_cfg->pwm_mode = pwm_cfg->default_mode;
-			pwm_free(pwm_cfg->pwm_dev);
-
-			qpnp_pwm_init(pwm_cfg, led->spmi_dev, led->cdev.name);
-			qpnp_led_set(&led->cdev, led->cdev.brightness);
-		}
-		else {
-			pwm_free(pwm_cfg->pwm_dev);
-			pwm_cfg->lut_params.start_idx = 0;
-			pwm_cfg->lut_params.idx_len = 2;
-			pwm_cfg->lut_params.lut_pause_hi = offMS - onMS;
-			pwm_cfg->lut_params.ramp_step_ms = onMS;
-			pwm_cfg->lut_params.flags = 91;
-			pwm_cfg->lut_params.lut_pause_lo = 0;
-			qpnp_pwm_init(pwm_cfg, led->spmi_dev, led->cdev.name);
-			qpnp_led_set(&led->cdev, led->cdev.brightness);
-		}
-		g_type = type;
-	}
-}
-#define LED_BUFF_SIZE 50
-static ssize_t red_blink_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	struct qpnp_led_data *led;
-	int type = 0;
-	int offMS = 0;
-	int onMS = 0;
-	int brightness = 0;
-
-	led = container_of(led_cdev, struct qpnp_led_data, cdev);
-
-	switch (led->id) {
-	case QPNP_ID_LED_MPP:
-		led = container_of(led_cdev, struct qpnp_led_data, cdev);
-		brightness = led_cdev->brightness;
-		type = g_type;
-		offMS = led->mpp_cfg->pwm_cfg->lut_params.lut_pause_hi + led->mpp_cfg->pwm_cfg->lut_params.ramp_step_ms;
-		onMS = led->mpp_cfg->pwm_cfg->lut_params.ramp_step_ms;
-		return snprintf(buf, LED_BUFF_SIZE, "%d, %d, %d, %d\n",type, offMS, onMS, brightness);
-	break;
-	default:
-		dev_err(&led->spmi_dev->dev, "Invalid LED id type for blink\n");
-		return -EINVAL;
-	}
-}
-
-static ssize_t red_blink_store(struct device *dev,
-	struct device_attribute *attr,
-	const char *buf, size_t count)
-{
-	struct qpnp_led_data *led;
-	int brightness;
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	int type = 0;
-	int offMS = 0;	int onMS = 0;
-
-	if(sscanf(buf, "%d,%d,%d,%d", &type, &offMS, &onMS, &brightness) != 4)
-		printk("bad arguments ");
-
-	led = container_of(led_cdev, struct qpnp_led_data, cdev);
-	led->cdev.brightness = brightness;
-
-	printk(KERN_INFO "%s(), LINE:%d type:%d, offMS:%d, onMS:%d, brightness:%d, id:%d\n",
-			__func__,__LINE__, type, offMS, onMS, brightness, led->id);
-
-	switch (led->id) {
-	case QPNP_ID_LED_MPP:
-		red_led_blink(led, led->mpp_cfg->pwm_cfg, type, offMS, onMS, brightness);
-		break;
-	case QPNP_ID_RGB_RED:
-	case QPNP_ID_RGB_GREEN:
-	case QPNP_ID_RGB_BLUE:
-		led_blink(led, led->rgb_cfg->pwm_cfg);
-		break;
-	default:
-		dev_err(&led->spmi_dev->dev, "Invalid LED id type for blink\n");
-		return -EINVAL;
-	}
-	return count;
-}
-#endif
 static DEVICE_ATTR(led_mode, 0664, NULL, led_mode_store);
 static DEVICE_ATTR(strobe, 0664, NULL, led_strobe_type_store);
 static DEVICE_ATTR(pwm_us, 0664, NULL, pwm_us_store);
@@ -2340,9 +2232,6 @@ static DEVICE_ATTR(ramp_step_ms, 0664, NULL, ramp_step_ms_store);
 static DEVICE_ATTR(lut_flags, 0664, NULL, lut_flags_store);
 static DEVICE_ATTR(duty_pcts, 0664, NULL, duty_pcts_store);
 static DEVICE_ATTR(blink, 0664, NULL, blink_store);
-#if defined(CONFIG_LGE_X10_VZW_LED) || defined(CONFIG_LGE_JAG_LED)
-static DEVICE_ATTR(red_blink, 0664, red_blink_show, red_blink_store);
-#endif
 
 static struct attribute *led_attrs[] = {
 	&dev_attr_led_mode.attr,
@@ -2371,9 +2260,6 @@ static struct attribute *lpg_attrs[] = {
 
 static struct attribute *blink_attrs[] = {
 	&dev_attr_blink.attr,
-#if defined(CONFIG_LGE_X10_VZW_LED) || defined(CONFIG_LGE_JAG_LED)
-	&dev_attr_red_blink.attr,
-#endif
 	NULL
 };
 

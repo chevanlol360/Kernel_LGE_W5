@@ -27,7 +27,7 @@
 
 #include "audio_acdb.h"
 #include "q6voice.h"
-
+#define DEBUG
 //                                                                     
 #define TIMEOUT_MS 500
 //            

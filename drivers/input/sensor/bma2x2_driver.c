@@ -4464,9 +4464,6 @@ static ssize_t bma2x2_selftest_store(struct device *dev,
 
 	bma2x2_soft_reset(bma2x2->bma2x2_client);
 	mdelay(5);
-#ifdef BMA2X2_ACCEL_CALIBRATION
-	bma2x2_set_bandwidth(bma2x2->bma2x2_client, BMA2X2_BW_SET);
-#endif
 	printk(KERN_INFO "self test finished\n");
 
 	return count;
@@ -6265,10 +6262,6 @@ static ssize_t bma2x2_fast_calibration_store(struct device *dev,
 
 	atomic_set(&bma2x2->fast_calib_rslt, 1);
 
-	sys_fsync(fd_offset_x);
-	sys_fsync(fd_offset_y);
-	sys_fsync(fd_offset_z);
-
 	sys_close(fd_offset_x);
 	sys_close(fd_offset_y);
 	sys_close(fd_offset_z);
@@ -6276,7 +6269,6 @@ static ssize_t bma2x2_fast_calibration_store(struct device *dev,
         sys_chmod("/sns/offset_y.dat", 0664);
         sys_chmod("/sns/offset_z.dat", 0664);
 	set_fs(old_fs);
-	PINFO("[CLOSE FILE]!!!!! ");
 
 	return count;
 }
@@ -6351,10 +6343,6 @@ static ssize_t bma2x2_eeprom_writing_store(struct device *dev,
 	atomic_set(&bma2x2->fast_calib_rslt, 1);
 	//bma2x2_set_bandwidth(bma2x2->bma2x2_client, BMA2X2_BW_62_50HZ);
 
-	sys_fsync(fd_offset_x);
-	sys_fsync(fd_offset_y);
-	sys_fsync(fd_offset_z);
-
 	sys_close(fd_offset_x);
 	sys_close(fd_offset_y);
 	sys_close(fd_offset_z);
@@ -6362,7 +6350,6 @@ static ssize_t bma2x2_eeprom_writing_store(struct device *dev,
         sys_chmod("/sns/offset_y.dat", 0664);
         sys_chmod("/sns/offset_z.dat", 0664);
 	set_fs(old_fs);
-	PINFO("[CLOSE FILE]!!!!! ");
 
 	return count;
 }

@@ -962,7 +962,7 @@ int msm_dsi_cmdlist_commit(struct mdss_dsi_ctrl_pdata *ctrl, int from_mdp)
 	}
 
 	msm_dsi_clk_ctrl(&ctrl->panel_data, 1);
-#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55))
+#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W55_GLOBAL_COM))
 #if defined (CONFIG_MACH_MSM8X10_W5)
 	if(lge_lcd_id == 1)					// W5 Tovis LCD
 #endif
@@ -975,7 +975,7 @@ int msm_dsi_cmdlist_commit(struct mdss_dsi_ctrl_pdata *ctrl, int from_mdp)
 		msm_dsi_cmdlist_rx(ctrl, req);
 	else
 		msm_dsi_cmdlist_tx(ctrl, req);
-#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55))
+#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W55_GLOBAL_COM))
 #if defined (CONFIG_MACH_MSM8X10_W5)
 		if(lge_lcd_id == 1)				//W5 tovis LCD
 #endif

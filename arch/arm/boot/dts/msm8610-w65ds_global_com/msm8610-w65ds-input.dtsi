@@ -75,8 +75,11 @@
 				lcd_y = <800>;
 				use_vio_regulator = <1>;
 				gpio_vdd_en = <75>;
-			    	/*maker_id  disable(0), enable(1)*/
-				maker_id = <0>;
+			    /* firmware image depends on this value, temporarily used */
+			    /* 0: No image(default), 1: W3DS(TIM BR)(PLG312_T001), 2: W3S(VDF)(PLG311_T001), 3:X3, 4:W5DS, 5:W5S ... */
+				panel_type = <4>;
+				/*maker_id  disable(0), enable(1)*/
+				maker_id = <1>;
 				maker_id_gpio = <76>;
 				palm_detect_mode = <1>;
 				ghost_detection_enable = <1>;

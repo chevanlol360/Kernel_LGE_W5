@@ -3064,12 +3064,10 @@ static struct clk_lookup msm_clocks_8610[] = {
 	CLK_LOOKUP("cam_clk", mclk0_clk.c, "6-0020"),
         CLK_LOOKUP("cam_clk", mclk0_clk.c, "6-006a"),
 #else
-	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "6-0020"),
 	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "6-0034"),
 	CLK_LOOKUP("cam_src_clk", mclk0_clk_src.c, "6-0040"),
 	CLK_LOOKUP("cam_src_clk", mclk1_clk_src.c, "6-0060"),
 	CLK_LOOKUP("cam_src_clk", mclk1_clk_src.c, "6-006e"),
-	CLK_LOOKUP("cam_clk", mclk0_clk.c, "6-0020"),
 	CLK_LOOKUP("cam_clk", mclk0_clk.c, "6-0034"),
 	CLK_LOOKUP("cam_clk", mclk0_clk.c, "6-0040"),
 	CLK_LOOKUP("cam_clk", mclk1_clk.c, "6-0060"),

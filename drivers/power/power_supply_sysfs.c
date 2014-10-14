@@ -86,13 +86,6 @@ static ssize_t power_supply_show_property(struct device *dev,
 	static char *type_text[] = {
 		"Unknown", "Battery", "UPS", "Mains", "USB",
 		"USB_DCP", "USB_CDP", "USB_ACA"
-#ifdef CONFIG_MAX17048_FUELGAUGE
-		,"BMS"
-		,"Max17048"
-#endif
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-		,"WIRELESS"
-#endif
 	};
 	static char *status_text[] = {
 		"Unknown", "Charging", "Discharging", "Not charging", "Full"
@@ -115,11 +108,10 @@ static ssize_t power_supply_show_property(struct device *dev,
 		"Unknown", "System", "Device"
 	};
 #ifdef CONFIG_LGE_PM_FACTORY_TESTMODE
-#if defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || defined(CONFIG_MACH_MSM8926_X3N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8926_F70N_GLOBAL_COM) || \
-	defined(CONFIG_MACH_MSM8926_X3N_GLOBAL_SCA) || \
-	defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3N_KR) || defined(CONFIG_MACH_MSM8926_F70N_KR)
+#if defined(CONFIG_MACH_MSM8926_X3N_OPEN_EU) || defined(CONFIG_MACH_MSM8926_X3N_GLOBAL_COM) || \
+	defined(CONFIG_MACH_MSM8926_X3_TRF_US) || defined(CONFIG_MACH_MSM8926_X3_KR)
 	static char *lge_hw_rev_text[] = {
-		"rev_0", "rev_a", "rev_a2", "rev_b", "rev_b2","rev_c", "rev_10", "rev_11", "revserved"
+		"rev_0", "rev_a", "rev_a2", "rev_b", "rev_c","rev_d", "rev_10", "rev_11", "revserved"
 	};
 #else
 	static char *lge_hw_rev_text[] = {
@@ -405,10 +397,6 @@ static struct device_attribute power_supply_attrs[] = {
 #ifdef CONFIG_LGE_PM_VZW_FAST_CHG
 	POWER_SUPPLY_ATTR(vzw_chg),
 #endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	POWER_SUPPLY_ATTR(use_fuelgauge),
-#endif
-
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_ATTR(model_name),
 	POWER_SUPPLY_ATTR(manufacturer),

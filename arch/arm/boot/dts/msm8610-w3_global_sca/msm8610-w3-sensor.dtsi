@@ -14,63 +14,9 @@
 	/* I2C device */
 	i2c@f9925000 {
 		/* Acceleration sensor */
-		STM_lis2dh@19{
-			compatible = "STM,lis2dh";
-			reg = <0x19>;
-			interrupt-parent = <&msmgpio>;
-			interrupts = <81 0x2>;
-			STM,vdd_ana-supply = <&pm8110_l14>;
-			STM,vddio_i2c-supply = <&pm8110_l14>;
-			STM,irq-gpio = <&msmgpio 81 0x00>;
-			STM,gpio_int2 = <&msmgpio 0 0x00>;
-			STM,i2c-pull-up = <1>;
-			STM,vdd_ana_supply_min = <1800000>;
-			STM,vdd_ana_supply_max = <1800000>;
-			STM,vdd_ana_load_ua = <10000>;
-			STM,vddio_dig_supply_min = <1800000>;
-			STM,vddio_dig_supply_max = <1800000>;
-			STM,vddio_dig_load_ua = <10000>;
-			STM,vddio_i2c_supply_min = <1800000>;
-			STM,vddio_i2c_supply_max = <1800000>;
-			STM,vddio_i2c_load_ua = <10000>;
-			STM,fs_range = <0x00>;
-			STM,axis_map_x = <1>;
-			STM,axis_map_y = <0>;
-			STM,axis_map_z = <2>;
-			STM,negate_x = <1>;
-			STM,negate_y = <1>;
-			STM,negate_z = <1>;
-			STM,poll_interval = <100>;
-			STM,min_interval = <1>;
-			place = <5>;
-			status = "ok";
-			revision = "rev_a";
-		};
-		Bosch_bma2x2@18_rev_0{
+		Bosch_bma2x2@18_rev_b {
 			compatible = "Bosch,bma2x2";
-			reg = <0x18>;
-			interrupt-parent = <&msmgpio>;
-			interrupts = <81 0x2>;
-			Bosch,vdd_ana-supply = <&pm8110_l14>;
-			Bosch,vddio_i2c-supply = <&pm8110_l14>;
-			Bosch,irq-gpio = <&msmgpio 81 0x00>;
-			Bosch,i2c-pull-up = <1>;
-			Bosch,vdd_ana_supply_min = <1800000>;
-			Bosch,vdd_ana_supply_max = <1800000>;
-			Bosch,vdd_ana_load_ua = <10000>;
-			Bosch,vddio_dig_supply_min = <1800000>;
-			Bosch,vddio_dig_supply_max = <1800000>;
-			Bosch,vddio_dig_load_ua = <10000>;
-			Bosch,vddio_i2c_supply_min = <1800000>;
-			Bosch,vddio_i2c_supply_max = <1800000>;
-			Bosch,vddio_i2c_load_ua = <10000>;
-			place = <5>;
-			status = "ok";
-			revision = "rev_0";
-		};
-		Bosch_bma2x2@18_rev_b{
-			compatible = "Bosch,bma2x2";
-			revision = "rev_b";
+			revision = "...rev_b";
 			status = "ok";
 			reg = <0x18>;
 			interrupt-parent = <&msmgpio>;
@@ -90,7 +36,7 @@
 			Bosch,vddio_i2c_load_ua = <10000>;
 			place = <7>;
 		};
-		Bosch_bma2x2@18_rev_c{
+		Bosch_bma2x2@18_rev_c {
 			compatible = "Bosch,bma2x2";
 			revision = "rev_c";
 			status = "ok";
@@ -112,7 +58,7 @@
 			Bosch,vddio_i2c_load_ua = <10000>;
 			place = <5>;
 		};
-		Bosch_bma2x2@18_rev_d{
+		Bosch_bma2x2@18_rev_d {
 			compatible = "Bosch,bma2x2";
 			revision = "rev_d";
 			status = "ok";
@@ -134,7 +80,7 @@
 			Bosch,vddio_i2c_load_ua = <10000>;
 			place = <7>;
 		};
-		Bosch_bma2x2@18_rev_e...{
+		Bosch_bma2x2@18_rev_e... {
 			compatible = "Bosch,bma2x2";
 			revision = "rev_e...";
 			status = "ok";

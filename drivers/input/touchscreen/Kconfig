@@ -134,42 +134,6 @@ config TOUCHSCREEN_ATMEL_S336
 	  To compile this driver as a module, choose M here: the
 	  module will be called atmel_s336.
 
-config TOUCHSCREEN_ATMEL_1188S
-	tristate "Atmel mXT 1188S I2C Touchscreen"
-	depends on I2C
-	help
-	  Say Y here if you have Atmel mXT series I2C touchscreen,
-	  such as AT42QT602240/ATMXT224, connected to your system.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called atmel_mxt1188S.
-
-config TOUCHSCREEN_ATMEL_T641
-	tristate "Atmel mXT 641T I2C Touchscreen"
-	depends on I2C
-	help
-	  Say Y here if you have Atmel mXT series I2C touchscreen,
-	  such as AT42QT602240/ATMXT224, connected to your system.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called atmel_t641.
-
-config TOUCHSCREEN_ATMEL_T1664
-	tristate "Atmel mXT 1664T2 I2C Touchscreen"
-	depends on I2C
-	help
-	  Say Y here if you have Atmel mXT series I2C touchscreen,
-	  such as AT42QT602240/ATMXT224, connected to your system.
-
-	  If unsure, say N.
-
-	  To compile this driver as a module, choose M here: the
-	  module will be called atmel_t1664.
-
 config TOUCHSCREEN_AUO_PIXCIR
 	tristate "AUO in-cell touchscreen using Pixcir ICs"
 	depends on I2C
@@ -1137,14 +1101,6 @@ config TOUCHSCREEN_LGE_TS_MISC
 	 Say Y here if you use lge touch misc
 	 if unsure, say N
 
-config TOUCHSCREEN_LGE_LPWG
-	bool "LGE Touch LPWG feature"
-	depends on I2C
-	default n
-	help
-	 Say Y here if you use lge LPWG feature
-	 if unsure, say N
-
 config LGE_TOUCHSCREEN_SYNAPTIC
 	bool "SYNAPTICS touchscreen"
 	default n
@@ -1209,7 +1165,7 @@ config TOUCHSCREEN_MELFAS_MMS136
 
           To compile this driver as a module, choose M here: the
           module will be called melfas-ts.
-
+          
 config TOUCHSCREEN_LGE_TOUCHCORE
 	bool "LGE Touch Core driver"
 	depends on I2C

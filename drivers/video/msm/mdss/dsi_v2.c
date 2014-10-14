@@ -68,7 +68,7 @@ static int dsi_panel_handler(struct mdss_panel_data *pdata, int enable)
 				panel_data);
 
 	if (enable) {
-#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55))
+#if !(defined (CONFIG_MACH_MSM8X10_W6) || defined(CONFIG_MACH_MSM8X10_W55DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W55_GLOBAL_COM))
 #if defined (CONFIG_MACH_MSM8X10_W5)
 		if(lge_lcd_id == 1){				// W5 Tovis LCD
 #endif

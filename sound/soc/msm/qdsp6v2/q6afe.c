@@ -24,6 +24,8 @@
 #include <sound/q6afe-v2.h>
 #include <sound/q6audio-v2.h>
 #include "msm-pcm-routing-v2.h"
+#define DEBUG
+#define pr_debugx(fmt, ...) no_printk(fmt, ##__VA_ARGS__)
 
 #include "audio_acdb.h"
 
@@ -120,7 +122,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 			this_afe.task->comm, this_afe.task->pid);
 		return 0;
 	}
-	pr_debug("%s:opcode = 0x%x cmd = 0x%x status = 0x%x size = %d\n",
+	pr_debugx("%s:opcode = 0x%x cmd = 0x%x status = 0x%x size = %d\n",
 			__func__, data->opcode,
 			((uint32_t *)(data->payload))[0],
 			((uint32_t *)(data->payload))[1],
@@ -147,7 +149,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 		uint32_t *payload;
 		uint16_t port_id = 0;
 		payload = data->payload;
-		pr_debug("%s:opcode = 0x%x cmd = 0x%x status = 0x%x token=%d\n",
+		pr_debugx("%s:opcode = 0x%x cmd = 0x%x status = 0x%x token=%d\n",
 					__func__, data->opcode,
 					payload[0], payload[1], data->token);
 		if (data->opcode == APR_BASIC_RSP_RESULT) {
@@ -201,7 +203,7 @@ static int32_t afe_callback(struct apr_client_data *data, void *priv)
 		} else if (data->opcode == AFE_EVENT_RT_PROXY_PORT_STATUS) {
 			port_id = (uint16_t)(0x0000FFFF & payload[0]);
 		}
-		pr_debug("%s:port_id = %x\n", __func__, port_id);
+		pr_debugx("%s:port_id = %x\n", __func__, port_id);
 		switch (port_id) {
 		case RT_PROXY_PORT_001_TX: {
 			if (this_afe.tx_cb) {

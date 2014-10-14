@@ -46,7 +46,6 @@ static void wunlock_w(struct work_struct *w)
 
 #ifdef CONFIG_LGE_PM_VZW_FAST_CHG
 int lge_usb_config_finish = 0;
-bool usb_connecting_flag = false;
 bool usb_connected_flag = false;
 bool usb_configured_flag = false;
 struct delayed_work usb_detect_w;
@@ -57,8 +56,7 @@ extern int get_vzw_usb_charging_state(void);
 #define USB_DETECT_DELAY msecs_to_jiffies(50000)
 static void usb_detect_work(struct work_struct *w)
 {
-    if (!usb_connected_flag) {
-        set_vzw_usb_charging_state(0 /* IS_OPEN_TA */);
+    if (get_vzw_usb_charging_state() == 0 /* IS_OPEN_TA */) {
         pr_info("%s: OPEN TA is connected!!\n", __func__);
     } else if (usb_configured_flag) {
         lge_usb_config_finish = 1;
@@ -68,7 +66,6 @@ static void usb_detect_work(struct work_struct *w)
         set_vzw_usb_charging_state(1 /* IS_USB_DRIVER_UNINSTALLED */);
         pr_info("%s: USB DRIVER_UNINSTALLED\n", __func__);
     }
-    usb_connecting_flag = false;
     usb_connected_flag = false;
     usb_configured_flag = false;
 }
@@ -238,13 +235,12 @@ static void ci13xxx_msm_notify_event(struct ci13xxx *udc, unsigned event)
     switch (event) {
         case CI13XXX_CONTROLLER_CONNECT_EVENT:
         case CI13XXX_CONTROLLER_RESUME_EVENT:
-            pr_info("%s: [USB_DRV] CONNECTING\n", __func__);
-            if (usb_connecting_flag) {
+            pr_info("%s: [USB_DRV] CONNECTED or RESUME\n", __func__);
+            if (usb_connected_flag) {
                 cancel_delayed_work_sync(&usb_detect_w);
             } else {
-                usb_connecting_flag = true;
+                usb_connected_flag = true;
             }
-            usb_connected_flag = false;
             usb_configured_flag = false;
             lge_usb_config_finish = 0;
             schedule_delayed_work(&usb_detect_w, USB_DETECT_DELAY);
@@ -252,7 +248,6 @@ static void ci13xxx_msm_notify_event(struct ci13xxx *udc, unsigned event)
         case CI13XXX_CONTROLLER_DISCONNECT_EVENT:
             cancel_delayed_work_sync(&usb_detect_w);
             lge_usb_config_finish = 0;
-            usb_connecting_flag = false;
             usb_connected_flag = false;
             usb_configured_flag = false;
             break;

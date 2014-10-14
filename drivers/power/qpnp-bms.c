@@ -296,10 +296,6 @@ struct qpnp_bms_chip {
 	unsigned long			last_iavg_cal_time;
 	int				last_uuc_uah;
 #endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	//bool use_external_fuelgauge;
-	struct power_supply *maxim17048;
-#endif
 };
 
 static struct of_device_id qpnp_bms_match_table[] = {
@@ -328,9 +324,6 @@ static enum power_supply_property msm_bms_power_props[] = {
 #endif
 	POWER_SUPPLY_PROP_CHARGE_FULL,
 	POWER_SUPPLY_PROP_CYCLE_COUNT,
-#ifdef CONFIG_MAX17048_FUELGAUGE	
-	POWER_SUPPLY_PROP_USE_FUELGAUGE,
-#endif	
 };
 
 static int discard_backup_fcc_data(struct qpnp_bms_chip *chip);
@@ -339,41 +332,6 @@ static void backup_charge_cycle(struct qpnp_bms_chip *chip);
 #ifdef CONFIG_LGE_PM_VZW_LLK
 extern bool external_qpnp_chg_is_usb_chg_plugged_in(void);
 extern int32_t vzw_llk_enable_charging(bool enable);
-#endif
-
-#ifdef CONFIG_MAX17048_FUELGAUGE
-static int check_use_external_fuelgauge(struct qpnp_bms_chip *chip)
-{
-	int ret = 0;
-	if(chip->bms_psy_registered)
-	{
-		ret = chip->bms_psy.use_external_fuelgauge;
-		//                                                                                       
-	}
-	else
-	{
-		pr_err("[LGE] There is no bms_psy!!!\n");
-	}
-	return ret;
-}
-static int set_use_external_fuelgauge(struct qpnp_bms_chip *chip, int val)
-{
-	int ret = -1;
-	if(chip->bms_psy_registered)
-	{
-		chip->bms_psy.use_external_fuelgauge = val;
-		//                                                                                         
-		ret = 0;
-	}
-	else
-	{
-		pr_err("[LGE] There is no bms_psy!!!\n");
-		ret = -1;
-	}
-	return ret;
-}
-
-
 #endif
 
 static bool bms_reset;
@@ -2117,35 +2075,6 @@ static int report_cc_based_soc(struct qpnp_bms_chip *chip)
 
 static int report_state_of_charge(struct qpnp_bms_chip *chip)
 {
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	union power_supply_propval ret = {0,};
-	if (bms_fake_battery != -EINVAL) {
-		pr_debug("Returning Fake SOC = %d%%\n", bms_fake_battery);
-		return bms_fake_battery;
-	} 
-	else
-	{
-		if (chip->maxim17048== NULL)
-			chip->maxim17048 = power_supply_get_by_name("max17048");
-
-		if ((check_use_external_fuelgauge(chip))&&(chip->maxim17048!=NULL)) {
-			/* if battery has been registered, use the present property */
-			chip->maxim17048->get_property(chip->maxim17048,
-						POWER_SUPPLY_PROP_CAPACITY, &ret);
-			return ret.intval;
-		}
-		else  if (chip->use_voltage_soc)
-		{
-			printk("[LGE] No Fuelgauge and use voltage SOC\n");
-			return report_voltage_based_soc(chip);
-		}
-		else
-		{
-			printk("[LGE] No Fuelgauge and CC based SOC\n");
-			return report_cc_based_soc(chip);
-		}
-	}
-#else
 	if (bms_fake_battery != -EINVAL) {
 		pr_debug("Returning Fake SOC = %d%%\n", bms_fake_battery);
 		return bms_fake_battery;
@@ -2153,7 +2082,6 @@ static int report_state_of_charge(struct qpnp_bms_chip *chip)
 		return report_voltage_based_soc(chip);
 	else
 		return report_cc_based_soc(chip);
-#endif	
 }
 
 #define VDD_MAX_ERR			5000
@@ -2624,9 +2552,6 @@ static int calculate_state_of_charge(struct qpnp_bms_chip *chip,
 	int soc=0;
 	int previous_soc, shutdown_soc, new_calculated_soc;
 	int remaining_usable_charge_uah;
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	union power_supply_propval ret = {0,};
-#endif
 
 	calculate_soc_params(chip, raw, &params, batt_temp);
 	if (!is_battery_present(chip)) {
@@ -2676,31 +2601,11 @@ static int calculate_state_of_charge(struct qpnp_bms_chip *chip,
 	mutex_unlock(&chip->soc_invalidation_mutex);
 
 	pr_debug("SOC before adjustment = %d\n", soc);
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	if (chip->maxim17048== NULL)
-		chip->maxim17048 = power_supply_get_by_name("max17048");
-
-	if ((check_use_external_fuelgauge(chip))&&(chip->maxim17048!=NULL)){
-		/* if battery has been registered, use the present property */
-		chip->maxim17048->get_property(chip->maxim17048,
-					POWER_SUPPLY_PROP_CAPACITY, &ret);
-		new_calculated_soc = ret.intval;
-	}
-	else
-	{
-		new_calculated_soc = adjust_soc(chip, &params, soc, batt_temp);
-		
-		/* always clamp soc due to BMS hw/sw immaturities */
-		new_calculated_soc = clamp_soc_based_on_voltage(chip,
-						new_calculated_soc);
-	}
-#else
 	new_calculated_soc = adjust_soc(chip, &params, soc, batt_temp);
 
 	/* always clamp soc due to BMS hw/sw immaturities */
 	new_calculated_soc = clamp_soc_based_on_voltage(chip,
 					new_calculated_soc);
-#endif	
 	/*
 	 * If the battery is full, configure the cc threshold so the system
 	 * wakes up after SoC changes
@@ -3722,59 +3627,11 @@ static int qpnp_bms_power_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_CYCLE_COUNT:
 		val->intval = chip->charge_cycles;
 		break;
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	case POWER_SUPPLY_PROP_USE_FUELGAUGE:
-		val->intval = check_use_external_fuelgauge(chip);
-		break;
-
-#endif
 	default:
 		return -EINVAL;
 	}
 	return 0;
 }
-
-#ifdef CONFIG_MAX17048_FUELGAUGE
-static int
-qpnp_bms_property_is_writeable(struct power_supply *psy,
-						enum power_supply_property psp)
-{
-	switch (psp) {
-	case POWER_SUPPLY_PROP_USE_FUELGAUGE:
-		return 1;
-	default:
-		break;
-	}
-
-	return 0;
-}
-
-static int
-qpnp_bms_power_set_property(struct power_supply *psy,
-				  enum power_supply_property psp,
-				  const union power_supply_propval *val)
-{
-	int ret = 0;
-	struct qpnp_bms_chip *chip = container_of(psy, struct qpnp_bms_chip,
-								bms_psy);
-
-	switch (psp) {
-	case POWER_SUPPLY_PROP_USE_FUELGAUGE:
-		ret = set_use_external_fuelgauge(chip, val->intval);
-		break;
-	default:
-		return -EINVAL;
-	}
-	if (ret < 0)
-		return -EINVAL;
-	
-    pr_err("[LGE]  use_external_fuelgauge[%d]\n",
-            chip->bms_psy.use_external_fuelgauge);
-	power_supply_changed(&chip->bms_psy);
-	return 0;
-}
-#endif
-
 
 #define OCV_USE_LIMIT_EN		BIT(7)
 static int set_ocv_voltage_thresholds(struct qpnp_bms_chip *chip,
@@ -3962,7 +3819,7 @@ static irqreturn_t bms_sw_cc_thr_irq_handler(int irq, void *_chip)
 	schedule_work(&chip->recalc_work);
 	return IRQ_HANDLED;
 }
-#if !defined(CONFIG_MACH_MSM8226_E9WIFI_OPEN_KR) && !defined(CONFIG_MACH_MSM8226_E7WIFI_OPEN_KR) && !defined(CONFIG_MACH_MSM8226_E7LTE_OPEN_KR)
+
 static int64_t read_battery_id(struct qpnp_bms_chip *chip)
 {
 #ifdef CONFIG_LGE_PM_BATTERY_ID_CHECKER
@@ -3980,8 +3837,8 @@ static int64_t read_battery_id(struct qpnp_bms_chip *chip)
 
 	return result.physical;
 #endif
+
 }
-#endif
 
 static int set_battery_data(struct qpnp_bms_chip *chip)
 {
@@ -4116,16 +3973,18 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 	}
 #elif defined(CONFIG_LGE_PM_BATTERY_CAPACITY_3200mAh)
 	switch ( battery_id ){
-		case BATT_ID_ISL6296_C : // FALL THROUGH
+		case BATT_ID_DS2704_N : // FALL THROUGH
 		case BATT_ID_DS2704_L : // FALL THROUGH
             batt_data = &LGE_BL_47TH_3200mAh_LG_Chem_data;
 			pr_err("[BATTERY PROFILE] Using default profile - LGChem_3200mAh for id(%d)\n",battery_id);
             break;
 		case BATT_ID_DS2704_C : // FALL THROUGH
+		case BATT_ID_ISL6296_N : // FALL THROUGH
 		case BATT_ID_ISL6296_L : // FALL THROUGH
             batt_data = &LGE_BL_47TH_3200mAh_Tocad_data;
 			pr_err("[BATTERY PROFILE] Using default profile - Tocad_3200mAh for id(%d)\n",battery_id);
             break;
+		case BATT_ID_ISL6296_C : // FALL THROUGH
 		default : 
             batt_data = &LGE_BL_47TH_3200mAh_LG_Chem_data;
 			pr_err("[BATTERY PROFILE] No battery ID matching\nUsing default profile - LGChem_3200mAh for id(%d)\n",battery_id);
@@ -4138,13 +3997,9 @@ static int set_battery_data(struct qpnp_bms_chip *chip)
 
 #else // Not PM battery ID checker
 	// Set Default Battery Profile
-#if defined(CONFIG_MACH_MSM8226_E9WIFI_OPEN_KR) || defined(CONFIG_MACH_MSM8226_E7WIFI_OPEN_KR) || defined(CONFIG_MACH_MSM8226_E7LTE_OPEN_KR)
-        batt_data = &LGE_LGC_4600mAH_data;
-        pr_err("[BATTERY PROFILE] Using default profile - LGChem_4600mAh\n");
-#else
 	batt_data = &LGE_BL_54SH_2540mAh_LG_Chem_data;
 	pr_err("[BATTERY PROFILE] This version doesn't support BATTERY ID CHECKER\nUsing default profile-LGChem_2540mAh\n");
-#endif
+
 #endif
 #if 1 //FIXME
 	goto assign_data;
@@ -4234,6 +4089,7 @@ assign_data:
 	chip->default_rbatt_mohm = batt_data->default_rbatt_mohm;
 	chip->rbatt_capacitive_mohm = batt_data->rbatt_capacitive_mohm;
 	chip->flat_ocv_threshold_uv = batt_data->flat_ocv_threshold_uv;
+
 #ifndef CONFIG_LGE_PM_BATTERY_PROFILE_DATA
 	/* Override battery properties if specified in the battery profile */
 	if (batt_data->max_voltage_uv >= 0 && dt_data)
@@ -4360,11 +4216,7 @@ static inline int bms_read_properties(struct qpnp_bms_chip *chip)
 
 	if (chip->adjust_soc_low_threshold >= 45)
 		chip->adjust_soc_low_threshold = 45;
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	chip->bms_psy.use_external_fuelgauge= of_property_read_bool(
-			chip->spmi->dev.of_node,
-			"qcom,use-external-fuelgauge" );
-#endif
+
 	SPMI_PROP_READ_BOOL(enable_fcc_learning, "enable-fcc-learning");
 	if (chip->enable_fcc_learning) {
 		SPMI_PROP_READ(min_fcc_learning_soc,
@@ -4890,11 +4742,6 @@ static int __devinit qpnp_bms_probe(struct spmi_device *spmi)
 	chip->bms_psy.properties = msm_bms_power_props;
 	chip->bms_psy.num_properties = ARRAY_SIZE(msm_bms_power_props);
 	chip->bms_psy.get_property = qpnp_bms_power_get_property;
-#ifdef CONFIG_MAX17048_FUELGAUGE	
-	chip->bms_psy.set_property = qpnp_bms_power_set_property;
-	chip->bms_psy.property_is_writeable = qpnp_bms_property_is_writeable;
-//	chip->bms_psy.use_external_fuelgauge- chip->use_external_fuelgauge;
-#endif
 	chip->bms_psy.external_power_changed =
 		qpnp_bms_external_power_changed;
 	chip->bms_psy.supplied_to = qpnp_bms_supplicants;

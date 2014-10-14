@@ -1018,13 +1018,8 @@ int wlan_hdd_cfg80211_alloc_new_beacon(hdd_adapter_t *pAdapter,
     if (!params->head && !old)
         return -EINVAL;
 
-/*                                                                                     */
-#if 0
     if (params->tail && !params->tail_len)
         return -EINVAL;
-#endif
-/*                                                                                     */
-
 
 #if (LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,38))
     /* Kernel 3.0 is not updating dtim_period for set beacon */
@@ -6679,9 +6674,7 @@ static int wlan_hdd_cfg80211_get_station(struct wiphy *wiphy, struct net_device 
         /* Get MCS Rate Set -- but only if we are connected at MCS
            rates or if we are always reporting max speed or if we have
            good rssi */
-/*                                                                          */
-        if ((0 == rssidx) || (eHDD_LINK_SPEED_REPORT_MAX == pCfg->reportMaxLinkSpeed))//&& !(rate_flags & eHAL_TX_RATE_LEGACY))
-/*                                                                          */
+        if ((0 == rssidx) && !(rate_flags & eHAL_TX_RATE_LEGACY))
         {
             if (0 != ccmCfgGetStr(WLAN_HDD_GET_HAL_CTX(pAdapter), WNI_CFG_CURRENT_MCS_SET,
                                  MCSRates, &MCSLeng))

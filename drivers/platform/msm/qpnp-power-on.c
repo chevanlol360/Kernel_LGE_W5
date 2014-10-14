@@ -27,9 +27,7 @@
 #ifdef CONFIG_LGE_PM_PWR_KEY_FOR_CHG_LOGO
 #include <mach/board_lge.h>
 #endif
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-#include <linux/power/rt9536_charger.h>
-#endif
+
 
 /* Common PNP defines */
 #define QPNP_PON_REVISION2(base)		(base + 0x01)
@@ -124,10 +122,6 @@ struct qpnp_pon {
 	int num_pon_config;
 	u16 base;
 	struct delayed_work bark_work;
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	struct power_supply *wireless;
-	struct work_struct cblpwr_interrupt_work;
-#endif
 };
 
 static struct qpnp_pon *sys_reset_dev;
@@ -147,9 +141,6 @@ static const char * const qpnp_pon_reason[] = {
 	[6] = "Triggered from CBL (external power supply)",
 	[7] = "Triggered from KPD (power key press)",
 };
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-int qpnp_is_cblpwr_on(void);
-#endif
 
 static int
 qpnp_pon_masked_write(struct qpnp_pon *pon, u16 addr, u8 mask, u8 val)
@@ -396,36 +387,6 @@ qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	return 0;
 }
 
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-static void cblpwr_interrupt_worker(struct work_struct *work)
-{
-	struct qpnp_pon *pon =
-		container_of(work, struct qpnp_pon, cblpwr_interrupt_work); 
-	struct rt9536_chip *chip;
-	if(pon->wireless==NULL)
-		{
-			pon->wireless = power_supply_get_by_name("wireless");
-		}
-		if(pon->wireless!=NULL)
-		{
-			chip = container_of(pon->wireless, struct rt9536_chip, charger);
-		}	
-
-	if(qpnp_is_cblpwr_on())
-	{
-		schedule_work(&chip->wireless_set_online_work);
-		printk("[BIGLAKE] WIRELESS CHARGER IS INSERTED\n");
-	}
-	else
-	{
-		schedule_delayed_work(&chip->wireless_set_offline_work,
-	 	round_jiffies_relative(msecs_to_jiffies(1)));
-		printk("[BIGLAKE] WIRELESS CHARGER IS REMOVED\n");
-	}
-}
-#endif
-
-
 static irqreturn_t qpnp_kpdpwr_irq(int irq, void *_pon)
 {
 	int rc;
@@ -465,13 +426,6 @@ static irqreturn_t qpnp_cblpwr_irq(int irq, void *_pon)
 	struct qpnp_pon *pon = _pon;
 
 	rc = qpnp_pon_input_dispatch(pon, PON_CBLPWR);
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	if(&pon->cblpwr_interrupt_work!=NULL)
-		schedule_work(&pon->cblpwr_interrupt_work);
-#endif
-
-
-
 	if (rc)
 		dev_err(&pon->spmi->dev, "Unable to send input event\n");
 
@@ -750,18 +704,7 @@ qpnp_pon_request_irqs(struct qpnp_pon *pon, struct qpnp_pon_config *cfg)
 	default:
 		return -EINVAL;
 	}
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	/* mark the interrupts wakeable if they support linux-key */
-	if (cfg->key_code) {
-		enable_irq_wake(cfg->state_irq);
-		/* special handling for RESIN due to a hardware bug */
-		if (cfg->pon_type == PON_RESIN && cfg->support_reset)
-			enable_irq_wake(cfg->bark_irq);
-	} else if (cfg->pon_type==PON_CBLPWR)
-	{
-		enable_irq_wake(cfg->state_irq);
-	}
-#else
+
 	/* mark the interrupts wakeable if they support linux-key */
 	if (cfg->key_code) {
 		enable_irq_wake(cfg->state_irq);
@@ -769,7 +712,7 @@ qpnp_pon_request_irqs(struct qpnp_pon *pon, struct qpnp_pon_config *cfg)
 		if (cfg->pon_type == PON_RESIN && cfg->support_reset)
 			enable_irq_wake(cfg->bark_irq);
 	}
-#endif
+
 	return rc;
 }
 
@@ -1074,45 +1017,6 @@ free_input_dev:
 	return rc;
 }
 
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-int qpnp_is_cblpwr_on(void)
-{
-	int rc;
-	u8 pon_rt_sts = 0;
-	struct qpnp_pon_config *cfg;
-	struct qpnp_pon *pon=sys_reset_dev;
-	if (!pon)
-		return -EPROBE_DEFER;
-	
-	cfg = qpnp_get_cfg(pon, PON_CBLPWR);
-	if (!cfg) {
-		dev_err(&pon->spmi->dev, "Invalid config pointer\n");
-		return -1;
-	}
-
-	rc = spmi_ext_register_readl(pon->spmi->ctrl, pon->spmi->sid,
-				QPNP_PON_RT_STS(pon->base), &pon_rt_sts, 1);
-
-
-	if (pon_rt_sts & QPNP_PON_CBLPWR_N_SET) {
-		return 1;
-	} else {
-		return 0;
-	}	
-}
-EXPORT_SYMBOL(qpnp_is_cblpwr_on);
-
-int32_t qpnp_is_pon_ready(void)
-{
-	struct qpnp_pon *pon = sys_reset_dev;
-
-	if (!pon)
-		return -EPROBE_DEFER;
-	return 0;
-}
-EXPORT_SYMBOL(qpnp_is_pon_ready);
-#endif
-
 static int __devinit qpnp_pon_probe(struct spmi_device *spmi)
 {
 	struct qpnp_pon *pon;
@@ -1238,9 +1142,7 @@ static int __devinit qpnp_pon_probe(struct spmi_device *spmi)
 	dev_set_drvdata(&spmi->dev, pon);
 
 	INIT_DELAYED_WORK(&pon->bark_work, bark_work_func);
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	INIT_WORK(&pon->cblpwr_interrupt_work, cblpwr_interrupt_worker);
-#endif
+
 	/* register the PON configurations */
 	rc = qpnp_pon_config_init(pon);
 	if (rc) {

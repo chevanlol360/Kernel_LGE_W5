@@ -1567,7 +1567,7 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned mA)
 {
 	struct usb_gadget *g = motg->phy.otg->gadget;
 
-#if defined (CONFIG_LGE_PM) && ( defined (CONFIG_MACH_MSM8X10_W3C_VZW) || defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#if defined (CONFIG_LGE_PM) && defined (CONFIG_MACH_MSM8X10_W3C_VZW)
 	acc_cable_type cable;
 #endif
 
@@ -1587,7 +1587,7 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned mA)
 							motg->chg_type);
 
 /*                               */
-#if defined (CONFIG_LGE_PM) && ( !defined (CONFIG_MACH_MSM8X10_W3C_VZW) && !defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#if defined (CONFIG_LGE_PM) && !defined (CONFIG_MACH_MSM8X10_W3C_VZW)
     if (mA > 2 && lge_pm_get_cable_type() != NO_INIT_CABLE) {
         if (motg->chg_type == USB_SDP_CHARGER)
             mA  = lge_pm_get_usb_current();
@@ -1595,7 +1595,7 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned mA)
 		         motg->chg_type == USB_FLOATED_CHARGER)
             mA  = lge_pm_get_ta_current();
 	}
-#elif defined (CONFIG_LGE_PM) && ( defined (CONFIG_MACH_MSM8X10_W3C_VZW) || defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#elif defined (CONFIG_LGE_PM) && defined (CONFIG_MACH_MSM8X10_W3C_VZW)
     cable = lge_pm_get_cable_type();
 
     if (mA > 2 && cable != NO_INIT_CABLE) {
@@ -2523,12 +2523,13 @@ int32_t lge_pm_get_cable_usb_id_adc(struct msm_otg *motg)
 #ifdef CONFIG_ARCH_MSM8610
 			rc = qpnp_vadc_read(motg->vadc_dev,P_MUX3_1_1, &result);
 #else
-#if defined(CONFIG_MACH_MSM8226_W7_GLOBAL_COM) \
+#if defined(CONFIG_MACH_MSM8226_W7DS_OPEN_CIS)	\
+	|| defined(CONFIG_MACH_MSM8226_W7_OPEN_CIS) \
+	|| defined(CONFIG_MACH_MSM8226_W7_OPEN_EU) \
+	|| defined(CONFIG_MACH_MSM8226_W7_GLOBAL_COM) \
 	|| defined(CONFIG_MACH_MSM8226_W7_GLOBAL_SCA) \
-	|| defined(CONFIG_MACH_MSM8226_W7DS_GLOBAL_COM) \
-	|| defined(CONFIG_MACH_MSM8226_W7N_GLOBAL_COM) \
-	|| defined(CONFIG_MACH_MSM8226_W7N_GLOBAL_SCA) \
-	|| defined(CONFIG_MACH_MSM8226_W7DSN_GLOBAL_COM)
+	|| defined(CONFIG_MACH_MSM8226_W7DS_GLOBAL_SCA)\
+	|| defined(CONFIG_MACH_MSM8226_W7DS_GLOBAL_COM)
 			if(lge_get_board_revno() == HW_REV_0)
 				rc = qpnp_vadc_read(motg->vadc_dev,P_MUX8_1_1, &result);
 			else
@@ -2835,18 +2836,12 @@ static void msm_otg_wait_for_ext_chg_done(struct msm_otg *motg)
 #if defined (CONFIG_TOUCHSCREEN_ATMEL_S336) || defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTIC)
 extern void trigger_usb_state_from_otg(int usb_type);
 #endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_S540
-extern void trigger_baseline_state_machine(int plug_in, int type);
-#endif
+
 static void msm_otg_sm_work(struct work_struct *w)
 {
 	struct msm_otg *motg = container_of(w, struct msm_otg, sm_work);
 	struct usb_otg *otg = motg->phy.otg;
 	bool work = 0, srp_reqd, dcp;
-
-#if ( defined(CONFIG_MACH_MSM8X10_W3C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_VZW))
-    bool invalid;
-#endif
 #ifdef CONFIG_USB_G_LGE_ANDROID
 	struct msm_otg_platform_data *pdata = motg->pdata;
 #endif
@@ -2896,9 +2891,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 			pr_debug("b_sess_vld\n");
 			switch (motg->chg_state) {
 			case USB_CHG_STATE_UNDEFINED:
-#ifdef CONFIG_LGE_PM_VZW_FAST_CHG
-                motg->chg_det_count = 0;
-#endif
 				msm_chg_detect_work(&motg->chg_work.work);
 				break;
 			case USB_CHG_STATE_DETECTED:
@@ -2906,9 +2898,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 				case USB_DCP_CHARGER:
 #if defined (CONFIG_TOUCHSCREEN_ATMEL_S336) || defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTIC)
 					trigger_usb_state_from_otg(USB_DCP_CHARGER);
-#endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_S540
-					trigger_baseline_state_machine(1, 1);
 #endif
 					/* Enable VDP_SRC */
 					ulpi_write(otg->phy, 0x2, 0x85);
@@ -2919,7 +2908,7 @@ static void msm_otg_sm_work(struct work_struct *w)
 					}
 					/* fall through */
 				case USB_PROPRIETARY_CHARGER:
-#if ( defined (CONFIG_MACH_MSM8X10_W3C_VZW) || defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#if defined (CONFIG_MACH_MSM8X10_W3C_VZW)
 					msm_otg_notify_charger(motg, IDEV_CHG_DCP);
 #else
 					msm_otg_notify_charger(motg, IDEV_CHG_MAX);
@@ -2941,7 +2930,7 @@ static void msm_otg_sm_work(struct work_struct *w)
 					 */
 					break;
 				case USB_CDP_CHARGER:
-#if ( defined (CONFIG_MACH_MSM8X10_W3C_VZW) || defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#if defined (CONFIG_MACH_MSM8x10_W3C_VZW)
 					msm_otg_notify_charger(motg,
 							IDEV_CHG_CDP);
 #else
@@ -2954,9 +2943,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 #if defined (CONFIG_TOUCHSCREEN_ATMEL_S336) || defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTICS)
 					trigger_usb_state_from_otg(USB_CDP_CHARGER);
 #endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_S540
-					trigger_baseline_state_machine(1, 0);
-#endif
 					break;
 				case USB_ACA_C_CHARGER:
 					msm_otg_notify_charger(motg,
@@ -2966,7 +2952,16 @@ static void msm_otg_sm_work(struct work_struct *w)
 						OTG_STATE_B_PERIPHERAL;
 					break;
 				case USB_SDP_CHARGER:
-#if ( defined (CONFIG_MACH_MSM8X10_W3C_VZW) || defined (CONFIG_MACH_MSM8X10_W5C_VZW) )
+#ifdef CONFIG_LGE_PM_VZW_FAST_CHG
+					{
+						bool tmout = motg->dcd_time >= MSM_CHG_DCD_TIMEOUT;
+						if (tmout) {
+							set_vzw_usb_charging_state(0 /* IS_OPEN_TA */);
+							break;
+						}
+					}
+#endif
+#if defined (CONFIG_MACH_MSM8X10_W3C_VZW)
 					msm_otg_notify_charger(motg, IUNIT);
 #elif defined(CONFIG_LGE_PM)
 					msm_otg_notify_charger(motg,
@@ -2974,25 +2969,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 #endif// jaegeun.jung for Setting the Charging Current
 #if defined (CONFIG_TOUCHSCREEN_ATMEL_S336) || defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTIC)
 					trigger_usb_state_from_otg(USB_SDP_CHARGER);
-#endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_S540
-					trigger_baseline_state_machine(1, 0);
-#endif
-#ifdef CONFIG_LGE_PM_VZW_FAST_CHG
-                    {
-                        bool tmout = motg->dcd_time >= MSM_CHG_DCD_TIMEOUT;
-                        if (tmout) {
-                            if (motg->chg_det_count < 10) {
-                                pr_info("%s: chg_det_count(%d)\n", __func__, motg->chg_det_count);
-                                motg->chg_det_count++;
-                                motg->chg_state = USB_CHG_STATE_UNDEFINED;
-                                msm_chg_detect_work(&motg->chg_work.work);
-                            } else {
-                                set_vzw_usb_charging_state(0 /* IS_OPEN_TA */);
-                            }
-                            break;
-                        }
-                    }
 #endif
 					msm_otg_start_peripheral(otg, 1);
 					otg->phy->state =
@@ -3023,9 +2999,6 @@ static void msm_otg_sm_work(struct work_struct *w)
 			clear_bit(B_FALSE_SDP, &motg->inputs);
 			clear_bit(A_BUS_REQ, &motg->inputs);
 			cancel_delayed_work_sync(&motg->chg_work);
-#if (defined(CONFIG_MACH_MSM8X10_W3C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_VZW) )
-			invalid = (motg->chg_type == USB_INVALID_CHARGER);
-#endif
 			dcp = (motg->chg_type == USB_DCP_CHARGER);
 			motg->chg_state = USB_CHG_STATE_UNDEFINED;
             /*              */
@@ -3039,22 +3012,12 @@ static void msm_otg_sm_work(struct work_struct *w)
 #if defined (CONFIG_TOUCHSCREEN_ATMEL_S336) || defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTIC)
 			trigger_usb_state_from_otg(0);
 #endif
-
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_S540
-			trigger_baseline_state_machine(0, -1);
-#endif
-
 			msm_otg_notify_charger(motg, 0);
 			if (dcp) {
 				msm_otg_wait_for_ext_chg_done(motg);
 				/* Turn off VDP_SRC */
 				ulpi_write(otg->phy, 0x2, 0x86);
 			}
-#if ( defined(CONFIG_MACH_MSM8X10_W3C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_VZW))
-			if (invalid) {
-				ulpi_write(otg->phy, 0x2, 0x86);
-			}
-#endif
 			msm_otg_reset(otg->phy);
 			/*
 			 * There is a small window where ID interrupt

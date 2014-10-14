@@ -165,7 +165,7 @@ static struct msm_sensor_power_setting imx119_power_setting_rev_c[] = {
 	},
 
 };
-#elif defined(CONFIG_MACH_MSM8926_B2L_ATT) || defined(CONFIG_MACH_MSM8926_B2LN_LGU) || defined(CONFIG_MACH_MSM8926_B2LN_SKT) || defined(CONFIG_MACH_MSM8926_B2LN_KT) || defined(CONFIG_MACH_MSM8926_X10_VZW) || defined(CONFIG_MACH_MSM8926_JAGNM_ATT) || defined(CONFIG_MACH_MSM8926_JAGNM_GLOBAL_COM) || defined(CONFIG_MACH_MSM8926_JAGDSNM_CMCC_CN)
+#elif defined(CONFIG_MACH_MSM8926_B1L_ATT) || defined(CONFIG_MACH_MSM8926_B1L_VZW)
 static struct msm_sensor_power_setting imx119_power_setting_b1l[] = {
 	 /* Set GPIO_RESET to low to disable power on reset*/
 	{
@@ -449,7 +449,7 @@ static void imx119_power_setting(void)
 	}
 
 }
-#elif defined(CONFIG_MACH_MSM8926_B2L_ATT) || defined(CONFIG_MACH_MSM8926_B2LN_LGU) || defined(CONFIG_MACH_MSM8926_B2LN_SKT) || defined(CONFIG_MACH_MSM8926_B2LN_KT) || defined(CONFIG_MACH_MSM8926_X10_VZW) || defined(CONFIG_MACH_MSM8926_JAGNM_ATT) || defined(CONFIG_MACH_MSM8926_JAGNM_GLOBAL_COM) || defined(CONFIG_MACH_MSM8926_JAGDSNM_CMCC_CN)
+#elif defined(CONFIG_MACH_MSM8926_B1L_ATT) || defined(CONFIG_MACH_MSM8926_B1L_VZW)
 static void imx119_power_setting(void)
 {
 	pr_err("%s: Sensor power is set as imx119_power_setting_b1l[]\n", __func__);

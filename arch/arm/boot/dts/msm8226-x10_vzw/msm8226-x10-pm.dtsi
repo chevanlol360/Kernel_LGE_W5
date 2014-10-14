@@ -17,7 +17,7 @@
 &spmi_bus {
 	qcom,pm8226@0 {
 		qcom,leds@a100 {
-				status = "disable";
+				status = "okay";
 				qcom,led_mpp_2 {
 				label = "mpp";
 				linux,name = "button-backlight";
@@ -30,29 +30,6 @@
 				qcom,source-sel = <1>;
 				qcom,mode-ctrl = <0x60>;
 				};
-		};
-		qcom,leds@a300 {
-			status = "okay";
-			qcom,led_mpp_4 {
-				label = "mpp";
-				linux,name = "red";
-				linux,default-trigger = "none";
-				qcom,default-state = "off";
-				qcom,max-current = <40>;
-				qcom,current-setting = <5>;
-				qcom,id = <6>;
-				qcom,mode = "pwm";
-				qcom,pwm-us = <1000>;
-				qcom,source-sel = <8>;
-				qcom,mode-ctrl = <0x60>;
-				qcom,pwm-channel = <0>;
-				qcom,start-idx = <0>;
-				qcom,idx-len = <2>;
-				qcom,ramp-step-ms = <1000>;
-				qcom,duty-pcts = [
-					FF 00];
-				qcom,use-blink;
-			};
 		};
 	};
 	qcom,pm8226@1 {

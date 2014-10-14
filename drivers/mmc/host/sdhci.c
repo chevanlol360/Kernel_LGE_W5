@@ -68,6 +68,53 @@ static inline int sdhci_runtime_pm_put(struct sdhci_host *host)
 }
 #endif
 
+#ifdef CONFIG_LGE_PM_VZW_HIGH_TEMP_PWR_OFF
+int read_high_temp_power_off(char *filename)
+{
+	struct file *filp;
+	char read_val;
+	
+	mm_segment_t old_fs = get_fs();
+	set_fs(KERNEL_DS);
+	
+	filp = filp_open(filename, O_RDWR, S_IRUSR|S_IWUSR);
+	if(IS_ERR(filp)){
+		pr_err("open error : %ld\n", IS_ERR(filp));
+		return -1;
+	}
+	filp->f_pos = 0;
+	
+	vfs_read(filp, &read_val, 1, &filp->f_pos);
+	filp_close(filp, NULL);
+	set_fs(old_fs);
+	return read_val;
+}
+EXPORT_SYMBOL_GPL(read_high_temp_power_off);
+
+void write_high_temp_power_off(char *filename)
+{
+	struct file *filp;
+	char write_val;
+	
+	mm_segment_t old_fs = get_fs();
+	set_fs(KERNEL_DS);
+	
+	filp = filp_open(filename, O_CREAT | O_RDWR, S_IRUSR|S_IWUSR);
+	if(IS_ERR(filp)){
+		pr_err("open error : %ld\n", IS_ERR(filp));
+		return;
+	}
+	filp->f_pos = 0;
+	write_val = 49;
+	
+	vfs_write(filp, &write_val, 1, &filp->f_pos);
+	filp_close(filp, NULL);
+	set_fs(old_fs);
+	return;
+}
+EXPORT_SYMBOL_GPL(write_high_temp_power_off);
+#endif
+
 static void sdhci_dump_state(struct sdhci_host *host)
 {
 	struct mmc_host *mmc = host->mmc;

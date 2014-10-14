@@ -568,7 +568,15 @@ int msm_vdec_release_buf(struct msm_vidc_inst *inst,
 				core);
 		goto exit;
 	}
-
+	if (!inst->in_reconfig) {
+		rc = msm_comm_try_state(inst, MSM_VIDC_RELEASE_RESOURCES_DONE);
+		if (rc) {
+			dprintk(VIDC_ERR,
+				"Failed to move inst: %p to relase res done\n",
+				inst);
+			goto exit;
+		}
+	}
 	switch (b->type) {
 	case V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE:
 		break;
@@ -601,12 +609,24 @@ int msm_vdec_release_buf(struct msm_vidc_inst *inst,
 					b->m.planes[extra_idx].m.userptr;
 			else
 				buffer_info.extradata_addr = 0;
-			buffer_info.response_required = false;
+			buffer_info.response_required = true;//false;
+			init_completion(
+				&inst->completions[SESSION_MSG_INDEX
+				(SESSION_RELEASE_BUFFER_DONE)]);
 			rc = call_hfi_op(hdev, session_release_buffers,
 				(void *)inst->session, &buffer_info);
 			if (rc)
 				dprintk(VIDC_ERR,
 				"vidc_hal_session_release_buffers failed");
+			rc = wait_for_completion_timeout(
+				&inst->completions[SESSION_MSG_INDEX(SESSION_RELEASE_BUFFER_DONE)],
+				msecs_to_jiffies(msm_vidc_hw_rsp_timeout));
+			if (!rc) {
+				dprintk(VIDC_ERR, "Wait interrupted or timeout: %d\n", rc);
+				msm_comm_recover_from_session_error(inst);
+				rc = -EIO;
+			}
+
 		break;
 	default:
 		dprintk(VIDC_ERR, "Buffer type not recognized: %d\n", b->type);

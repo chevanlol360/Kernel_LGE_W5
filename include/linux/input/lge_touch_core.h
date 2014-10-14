@@ -70,7 +70,6 @@ struct touch_device_caps
 	u32		lcd_touch_ratio_y;
 	u32		maker_id;
 	u32		maker_id_gpio;
-	u32		maker_id2_gpio;
 	u16		ghost_detection_value[GHOST_VALUE_MAX];
 };
 
@@ -115,10 +114,9 @@ struct touch_platform_data
 	u32	int_pin;
 	u32	reset_pin;
 	int panel_type;
-	u8	panel_id;
 	char	knock_on_type;
 	char	maker[30];
-	u8 fw_version[FW_VER_INFO_NUM];
+	u32 fw_version[FW_VER_INFO_NUM];
 	struct touch_device_caps*		caps;
 	u8 num_caps;
 	struct touch_operation_role*	role;
@@ -127,9 +125,7 @@ struct touch_platform_data
 	u8 num_pwr;
 
 	const char *inbuilt_fw_name;
-	const char *inbuilt_fw_name_id[4];
 	const char *panel_spec;
-	const char *panel_spec_id[4];
 	u32 global_access_pixel;
 };
 
@@ -505,8 +501,6 @@ enum{
     LPWG_ACTIVE_AREA_Y2,
     LPWG_TAP_COUNT,
     LPWG_REPLY,
-    LPWG_STATUS_BY_PROXI,
-    LPWG_MODE_CHANGE,
 };
 
 enum{

@@ -27,10 +27,6 @@
 #include "mdss_dsi.h"
 #include "mdss_panel.h"
 
-#ifdef CONFIG_FB_MSM_MIPI_LGD_LH500WX9_VIDEO_HD_PT_PANEL
-#include "mdss_debug.h"
-#endif
-
 #define VSYNC_PERIOD 17
 
 static struct mdss_dsi_ctrl_pdata *left_ctrl_pdata;
@@ -702,7 +698,6 @@ static int mdss_dsi_cmds2buf_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 
 			mdss_dsi_enable_irq(ctrl, DSI_CMD_TERM);
 			len = mdss_dsi_cmd_dma_tx(ctrl, tp);
-			printk("len = %x\n",len);
 			if (IS_ERR_VALUE(len)) {
 				mdss_dsi_disable_irq(ctrl, DSI_CMD_TERM);
 				pr_err("%s: failed to call cmd_dma_tx for cmd = 0x%x\n",
@@ -990,11 +985,8 @@ end:
 	return rp->len;
 }
 
-#ifdef CONFIG_FB_MSM_MIPI_LGD_LH500WX9_VIDEO_HD_PT_PANEL
-#define DMA_TX_TIMEOUT 20000
-#else
 #define DMA_TX_TIMEOUT 200
-#endif
+
 static int mdss_dsi_cmd_dma_tx(struct mdss_dsi_ctrl_pdata *ctrl,
 					struct dsi_buf *tp)
 {

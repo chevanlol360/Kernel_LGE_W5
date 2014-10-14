@@ -139,13 +139,13 @@
 		qcom,mdss-dsi-lane-0-state;
 		qcom,mdss-dsi-lane-1-state;
 		qcom,mdss-dsi-lane-map = "lane_map_3012";
-		qcom,mdss-dsi-t-clk-pre = <0x2D>;
-		qcom,mdss-dsi-t-clk-post = <0x19>;
+		qcom,mdss-dsi-t-clk-pre = <0x17>;
+		qcom,mdss-dsi-t-clk-post = <0x04>;
 		qcom,mdss-dsi-stream = <0>;
 		qcom,mdss-dsi-mdp-trigger = "none";
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-panel-framerate = <60>;
-		qcom,mdss-dsi-panel-timings = [A5 89 15 00 8F 8F 18 8B 0F 03 04 00];
+		qcom,mdss-dsi-panel-timings = [A6 89 15 00 90 8F 18 8B 0F 03 04 00];
 		qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
 		qcom,mdss-dsi-on-command = [
@@ -162,7 +162,7 @@
 				39 01 00 00 00 00 02
 				  B3 02
 				39 01 00 00 00 00 02
-				  B4 04
+				  B4 00
 				39 01 00 00 00 00 06
 				  B5 40 10 10 00 00
 				39 01 00 00 00 00 07
@@ -172,21 +172,21 @@
 				39 01 00 00 00 00 07
 				  C4 12 24 18 18 02 49
 				39 01 00 00 00 00 02
-				  C5 6D
+				  C5 69
 				39 01 00 00 00 00 04
-				  C6 42 63 03
+				  C6 41 63 03
 				39 01 00 00 00 00 0A
-				  D0 22 05 65 03 00 04 21 00 02
+				  D0 00 24 67 02 00 00 20 00 02
 				39 01 00 00 00 00 0A
-				  D1 22 05 65 03 00 04 21 00 02
+				  D1 00 24 67 02 00 00 20 00 02
 				39 01 00 00 00 00 0A
-				  D2 22 05 65 03 00 04 21 00 02
+				  D2 00 24 67 02 00 00 20 00 02
 				39 01 00 00 00 00 0A
-				  D3 22 05 65 03 00 04 21 00 02
+				  D3 00 24 67 02 00 00 20 00 02
 				39 01 00 00 00 00 0A
-				  D4 22 05 65 03 00 04 21 00 02
+				  D4 00 24 67 02 00 00 20 00 02
 				39 01 00 00 00 00 0A
-				  D5 22 05 65 03 00 04 21 00 02
+				  D5 00 24 67 02 00 00 20 00 02
 				05 01 00 00 78 00 01
 				  11
 				05 01 00 00 28 00 01
@@ -409,7 +409,7 @@
 		qcom,mdss-dsi-v-back-porch = <14>;
 		qcom,mdss-dsi-v-pulse-width = <4>;
 		qcom,mdss-dsi-v-front-porch = <14>;
-		qcom,mdss-dsi-underflow-color = <0xff>;
+		qcom,mdss-dsi-underflow-color = <0>;
 		qcom,mdss-dsi-bl-min-level = <1>;
 		qcom,mdss-dsi-bl-max-level = <255>;
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
@@ -499,108 +499,7 @@
 				  B7 08
 				];
 	};
-	
-	//W35 Display
-	dsi_w35_tovis_hvga_cmd: qcom,dsi_v2_w35_tovis_hvga_cmd {
-		qcom,mdss-dsi-panel-name = "TOVIS 320p cmd mode dsi panel";
-		qcom,mdss-dsi-panel-controller = <&mdss_dsi0>;
-		qcom,mdss-dsi-panel-type = "dsi_cmd_mode";
-		qcom,mdss-dsi-panel-destination = "display_1";
-		qcom,mdss-pan-physical-width-dimension = <49>;
-		qcom,mdss-pan-physical-height-dimension = <73>;
-		qcom,mdss-dsi-panel-width = <320>;
-		qcom,mdss-dsi-panel-height = <480>;
-		qcom,mdss-dsi-bpp = <24>;
-		qcom,mdss-dsi-h-back-porch = <14>;
-		qcom,mdss-dsi-h-pulse-width = <8>;
-		qcom,mdss-dsi-h-front-porch = <49>;
-		qcom,mdss-dsi-h-sync-skew = <0>;
-		qcom,mdss-dsi-v-back-porch = <14>;
-		qcom,mdss-dsi-v-pulse-width = <4>;
-		qcom,mdss-dsi-v-front-porch = <14>;
-		qcom,mdss-dsi-underflow-color = <0xff>;
-		qcom,mdss-dsi-bl-min-level = <1>;
-		qcom,mdss-dsi-bl-max-level = <255>;
-		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
-		qcom,mdss-dsi-h-sync-pulse = <0>;
-		qcom,mdss-dsi-traffic-mode = "non_burst_sync_event";
-		qcom,mdss-dsi-bllp-eof-power-mode;
-		qcom,mdss-dsi-bllp-power-mode;
-		qcom,mdss-dsi-te-dcs-command = <1>;
-		qcom,mdss-dsi-te-v-sync-rd-ptr-irq-line = <0x2c>;
-		qcom,mdss-dsi-te-v-sync-continues-lines = <0x3c>;
-		qcom,mdss-dsi-virtual-channel-id = <0>;
-		qcom,mdss-dsi-color-order = "rgb_swap_rgb";
-		qcom,mdss-dsi-lane-0-state;
-		qcom,mdss-dsi-lane-map = "lane_map_3012";
-		qcom,mdss-dsi-t-clk-pre = <0x27>;
-		qcom,mdss-dsi-t-clk-post = <0x20>;
-		qcom,mdss-dsi-stream = <0>;
-		qcom,mdss-dsi-mdp-trigger = "trigger_te";
-		qcom,mdss-dsi-dma-trigger = "trigger_sw";
-		qcom,mdss-dsi-panel-framerate = <60>;
-		qcom,mdss-dsi-panel-timings = [4A 1A 12 00 25 26 16 1C 1C 03 04 00];
-		qcom,mdss-dsi-on-command-state = "dsi_lp_mode";
-		qcom,mdss-dsi-off-command-state = "dsi_lp_mode";
-		qcom,mdss-dsi-reset-sequence = <1 2>, <0 10>, <1 120>;
-		qcom,mdss-dsi-on-command = [
-				23 01 00 00 00 00 02	//power control 2
-				  C1 41
-				29 01 00 00 00 00 03	//power control 1
-				  C0 15 15
-				29 01 00 00 00 00 10	//positive gamma control
-				  E0 00 09 13 00 10 08 40 97 50 0A 10 0B 21 25 0F
-				29 01 00 00 00 00 10	//negative gamma control
-				  E1 00 1B 1F 04 0F 06 30 36 45 05 0F 0F 2C 36 0F
-				29 01 00 00 00 00 05	//Vcom control
-				  C5 00 57 80 00
-				39 01 00 00 00 00 02	//inferface mode control
-				  B0 00
-				39 01 00 00 00 00 02	//frame rate control
-				  B1 A0
-				23 01 00 00 00 00 02	//display inversion
-				  B4 02
-				29 01 00 00 00 00 04	//display control
-				 B6 02 42 3B
-				29 01 00 00 00 00 02	//set image function
-				  E9 00
-				29 01 00 00 00 00 05	//adjust control 3
-				  F7 A9 51 2C 82
-				15 01 00 00 00 00 02	//interface pixel format
-				  3A 66
-				39 01 00 00 00 00 02	//memory access
-				  36 08
-			    15 01 00 00 00 00 02	//temp brightness
-				  51 FF
-				15 01 00 00 00 00 02	//temp brightness
-				  53 2C
-				15 01 00 00 05 00 02	//temp brightness
-				  55 02
-				15 01 00 00 05 00 02
-				  CC 01
-				15 01 00 00 05 00 02
-				  35 00
-				29 01 00 00 00 00 03
-				  44 00 00			
-				39 01 00 00 00 00 0C	//adjust control 2
-				  F2 58 04 12 02 22 42 FF 0A 90 14 88  
-				05 01 00 00 78 00 01	//sleep out
-				  11
-				05 01 00 00 3C 00 01	//display on
-				  29
-				05 01 00 00 50 00 01	//memory write
-				  2C
-				];
-		qcom,mdss-dsi-off-command = [
-				05 01 00 00 32 00 01
-				  28
-				05 01 00 00 78 00 01
-				  10
-				15 01 00 00 00 00 02
-				  B7 08
-				];
-	};
-	
+
 	dsi_innolux_hvga_vid: qcom,dsi_v2_innolux_hvga_video {
 		qcom,mdss-dsi-panel-name = "INNOLUX 320p video mode dsi panel";
 		qcom,mdss-dsi-panel-controller = <&mdss_dsi0>;
@@ -713,7 +612,7 @@
 		qcom,mdss-dsi-v-back-porch = <14>;
 		qcom,mdss-dsi-v-pulse-width = <4>;
 		qcom,mdss-dsi-v-front-porch = <14>;
-		qcom,mdss-dsi-underflow-color = <0xff>;
+		qcom,mdss-dsi-underflow-color = <0>;
 		qcom,mdss-dsi-bl-min-level = <1>;
 		qcom,mdss-dsi-bl-max-level = <255>;
 		qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_wled";
@@ -918,8 +817,8 @@
 		qcom,mdss-dsi-lane-0-state;
 		qcom,mdss-dsi-lane-1-state;
 		qcom,mdss-dsi-lane-map = "lane_map_3012";
-		qcom,mdss-dsi-t-clk-pre = <0x2D>;
-		qcom,mdss-dsi-t-clk-post = <0x19>;
+		qcom,mdss-dsi-t-clk-pre = <0x2E>;
+		qcom,mdss-dsi-t-clk-post = <0x2A>;
 		qcom,mdss-dsi-stream = <0>;
 		qcom,mdss-dsi-mdp-trigger = "none";
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
@@ -1987,7 +1886,7 @@
 				15 01 00 00 00 00 02 /* Power Control 1 */
 					40 11
 				15 01 00 00 00 00 02 /* Power Control 2 */
-					41 66
+					41 33
 				15 01 00 00 00 00 02 /* Power Control 3 */
 					42 02
 				15 01 00 00 00 00 02 /* Power Control 4*/
@@ -1995,15 +1894,15 @@
 				15 01 00 00 00 00 02 /* Power Control 5 */
 					44 06
 				15 01 00 00 00 00 02 /* Power Control 9 */
-					50 78	
+					50 8E	
 				15 01 00 00 00 00 02 /*  Power Control 10 */
-					51 78
+					51 8D
 				15 01 00 00 00 00 02 /* VCOM Control 1~2 */
 					52 00 
 				15 01 00 00 00 00 02 /* VCOM Control 1~2 */
-					53 40 
+					53 58 
 				15 01 00 00 00 00 02 /* VCOM Control 3~4 */
-					60 07 
+					60 0D 
 				15 01 00 00 00 00 02 /* VCOM Control 3~4 */
 					61 00 
 				15 01 00 00 00 00 02 /* VCOM Control 5 */
@@ -2011,69 +1910,69 @@
 				15 01 00 00 00 00 02 /* VCOM Control 5 */
 					63 00
 				15 01 00 00 00 00 02 /* Positive Gamma Control (01h~16h) */
-					A0 05
+					A0 00
 				15 01 00 00 00 00 02 
-					A1 0B 
+					A1 00 
 				15 01 00 00 00 00 02 
-					A2 16 
+					A2 07 
 				15 01 00 00 00 00 02 
-					A3 0F 
+					A3 10 
 				15 01 00 00 00 00 02 
-					A4 05
+					A4 0A
 				15 01 00 00 00 00 02 
-					A5 05
+					A5 1C
 				15 01 00 00 00 00 02 
-					A6 0a
+					A6 0D
 				15 01 00 00 00 00 02 
-					A7 08
+					A7 0A
 				15 01 00 00 00 00 02 
-					A8 05
+					A8 01
 				15 01 00 00 00 00 02 
-					A9 0A
+					A9 04
 				15 01 00 00 00 00 02 
-					AA 15
+					AA 07
 				15 01 00 00 00 00 02 
-					AB 06
+					AB 0A
 				15 01 00 00 00 00 02 
-					AC 0D 
+					AC 0B 
 				15 01 00 00 00 00 02 
-					AD 1B
+					AD 3F
 				15 01 00 00 00 00 02 
-					AE 12
+					AE 33
 				15 01 00 00 00 00 02 
-					AF 00
+					AF 08
 				15 01 00 00 00 00 02 /* Negative Gamma Control (01h~16h) */
-					C0 05
+					C0 00
 				15 01 00 00 00 00 02 
 					C1 05
 				15 01 00 00 00 00 02 
-					C2 0B
+					C2 0F
 				15 01 00 00 00 00 02 
-					C3 16
+					C3 11
 				15 01 00 00 00 00 02 
-					C4 05
+					C4 0B
 				15 01 00 00 00 00 02 
-					C5 05
+					C5 1D
 				15 01 00 00 00 00 02 
-					C6 0A
+					C6 09
 				15 01 00 00 00 00 02 
-					C7 08
+					C7 09
 				15 01 00 00 00 00 02 
-					C8 05
+					C8 04
 				15 01 00 00 00 00 02 
-					C9 0A
+					C9 0B
 				15 01 00 00 00 00 02 
-					CA 15
+					CA 02
 				15 01 00 00 00 00 02 
-					CB 06
+					CB 00
 				15 01 00 00 00 00 02 
-					CC 0D
+					CC 0A
 				15 01 00 00 00 00 02 
-					CD 1B
+					CD 19
 				15 01 00 00 00 00 02 
-					CE 12
+					CE 19
 				15 01 00 00 00 00 02 
-					CF 00
+					CF 08
 				39 01 00 00 00 00 06 /* Set EXTC - Change to page 7 */
 					FF FF 98 06 04 06	
 				15 01 00 00 00 00 02 /* VGL_REG Enable */
@@ -2093,7 +1992,7 @@
 				15 01 00 00 00 00 02 
 					07 02
 				15 01 00 00 00 00 02 
-					08 02
+					08 07
 				15 01 00 00 00 00 02 
 					09 80
 				15 01 00 00 00 00 02 

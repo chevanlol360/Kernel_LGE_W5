@@ -860,6 +860,24 @@ fail_clk_enable:
 	return rc;
 }
 
+static int venus_hfi_read_xin(struct venus_hfi_device *device)
+{
+	u32 reg;
+	int rc = 0;
+	if (!device) {
+		dprintk(VIDC_ERR, "Invalid input: %p\n", device);
+		return -EINVAL;
+	}
+	reg = venus_hfi_read_register(device, VIDC_VBIF_XIN_HALT_CTRL1);
+
+	rc = readl_poll_timeout((u32)device->hal_data->register_base_addr
+			+ VIDC_VBIF_XIN_HALT_CTRL1, reg, reg & BIT(16),2,50);
+	if (rc)
+		dprintk(VIDC_ERR, "XIN bus read poll timeout\n");
+
+	return rc;
+}
+
 /*Calling function is responsible to acquire device->clk_pwr_lock*/
 static inline void venus_hfi_clk_disable(struct venus_hfi_device *device)
 {
@@ -874,6 +892,9 @@ static inline void venus_hfi_clk_disable(struct venus_hfi_device *device)
 		dprintk(VIDC_DBG, "Clocks already disabled");
 		return;
 	}
+
+	if(venus_hfi_read_xin(device))
+		return;
 
 	for (i = 0; i <= device->clk_gating_level; i++) {
 		cl = &device->resources.clock[i];
@@ -894,6 +915,7 @@ static int venus_hfi_halt_axi(struct venus_hfi_device *device)
 		dprintk(VIDC_ERR, "Invalid input: %p\n", device);
 		return -EINVAL;
 	}
+	mutex_lock(&device->clk_pwr_lock);
 	if (venus_hfi_clk_gating_off(device)) {
 		dprintk(VIDC_ERR, "Failed to turn off clk gating\n");
 		return -EIO;
@@ -911,6 +933,7 @@ static int venus_hfi_halt_axi(struct venus_hfi_device *device)
 			VENUS_VBIF_AXI_HALT_ACK_TIMEOUT_US);
 	if (rc)
 		dprintk(VIDC_WARN, "AXI bus port halt timeout\n");
+	mutex_unlock(&device->clk_pwr_lock);
 	return rc;
 }
 

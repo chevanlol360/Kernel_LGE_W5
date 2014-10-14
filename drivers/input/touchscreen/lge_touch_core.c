@@ -777,14 +777,11 @@ static int touch_asb_input_report(struct lge_touch_data *ts, int status)
 				total++;
 
 				if (ts->ts_data.prev_data[id].status == FINGER_RELEASED)
-					TOUCH_INFO_MSG("%d finger pressed : <%d> x[###] y[###] z[%3d]\n",
-						++ts->ts_data.touch_count, id,
-						ts->ts_data.curr_data[id].pressure);
-				/*	TOUCH_INFO_MSG("%d finger pressed : <%d> x[%3d] y[%3d] z[%3d]\n",
+					TOUCH_INFO_MSG("%d finger pressed : <%d> x[%3d] y[%3d] z[%3d]\n",
 						++ts->ts_data.touch_count, id,
 						ts->ts_data.curr_data[id].x_position,
 						ts->ts_data.curr_data[id].y_position,
-						ts->ts_data.curr_data[id].pressure); */
+						ts->ts_data.curr_data[id].pressure);
 
 				if (unlikely(touch_debug_mask & DEBUG_ABS))
 					TOUCH_INFO_MSG("<%d> pos[%4d,%4d] w_m[%2d] w_n[%2d] w_o[%2d] p[%3d]\n",
@@ -806,11 +803,10 @@ static int touch_asb_input_report(struct lge_touch_data *ts, int status)
 						&& ts->ts_data.prev_data[id].status == FINGER_PRESSED) {
 					input_mt_slot(ts->input_dev, id);
 					input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, false);
-					TOUCH_INFO_MSG("touch_release[ ] : <%d> x[###] y[###]\n", id);
-				/*	TOUCH_INFO_MSG("touch_release[ ] : <%d> x[%3d] y[%3d]\n",
+					TOUCH_INFO_MSG("touch_release[ ] : <%d> x[%3d] y[%3d]\n",
 						id,
 						ts->ts_data.prev_data[id].x_position,
-						ts->ts_data.prev_data[id].y_position); */
+						ts->ts_data.prev_data[id].y_position);
 					ts->ts_data.touch_count--;
 				}
 #endif
@@ -824,11 +820,10 @@ static int touch_asb_input_report(struct lge_touch_data *ts, int status)
 			if (ts->ts_data.prev_data[id].status == FINGER_PRESSED) {
 				input_mt_slot(ts->input_dev, id);
 				input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, false);
-				TOUCH_INFO_MSG("touch_release[ ] : <%d> x[###] y[###]\n", id);
-			/*	TOUCH_INFO_MSG("touch_release[ ] : <%d> x[%3d] y[%3d]\n",
+				TOUCH_INFO_MSG("touch_release[ ] : <%d> x[%3d] y[%3d]\n",
 					id,
 					ts->ts_data.prev_data[id].x_position,
-					ts->ts_data.prev_data[id].y_position); */
+					ts->ts_data.prev_data[id].y_position);
 				ts->ts_data.touch_count--;
 			}
 		}
@@ -990,13 +985,8 @@ static void safety_reset(struct lge_touch_data *ts)
 	}
 	release_all_ts_event(ts);
 
-	if (ts->pdata->role->suspend_pwr == POWER_OFF) {
-		touch_power_cntl(ts, POWER_OFF);
-		touch_power_cntl(ts, POWER_ON);
-	} else if (ts->pdata->role->suspend_pwr == POWER_SLEEP) {
-		TOUCH_INFO_MSG("SOFT RESET in safety_reset func");
-		touch_device_func->ic_ctrl(ts->client, IC_CTRL_RESET_CMD, 0);
-	} else {}
+	touch_power_cntl(ts, POWER_OFF);
+	touch_power_cntl(ts, POWER_ON);
 	msleep(ts->pdata->role->booting_delay);
 
 	if (ts->pdata->role->operation_mode)
@@ -1783,8 +1773,6 @@ static void touch_work_func_a(struct work_struct *work)
 	u8 report_enable = 0;
 	int ret = 0;
 
-	mutex_lock(&ts->irq_work_mutex);
-
 	if (ts->pdata->role->ghost_detection_enable) {
 		if(trigger_baseline == 2){
 			ret = ghost_detect_solution(ts);
@@ -1799,10 +1787,8 @@ static void touch_work_func_a(struct work_struct *work)
 		goto err_out_critical;
 	else if (ret == -EAGAIN)
 		goto out;
-	else if (ret == -IGNORE_INTERRUPT) {
-		mutex_unlock(&ts->irq_work_mutex);
+	else if (ret == -IGNORE_INTERRUPT)
 		return;
-	}
 
 	/* Ghost detection solution */
 	if (ts->pdata->role->ghost_detection_enable) {
@@ -2130,20 +2116,17 @@ abs_report:
 	case BUTTON_PRESS:
 		input_report_key(ts->input_dev, ts->ts_data.curr_button.key_code, BUTTON_PRESSED);
 			if (unlikely(touch_debug_mask & DEBUG_BUTTON))
-			TOUCH_INFO_MSG("Touch KEY[##] is pressed\n");
-			//TOUCH_INFO_MSG("Touch KEY[%d] is pressed\n", ts->ts_data.curr_button.key_code);
+			TOUCH_INFO_MSG("Touch KEY[%d] is pressed\n", ts->ts_data.curr_button.key_code);
 		break;
 	case BUTTON_RELEASE:
 		input_report_key(ts->input_dev, ts->ts_data.prev_button.key_code, BUTTON_RELEASED);
 			if (unlikely(touch_debug_mask & DEBUG_BUTTON))
-			TOUCH_INFO_MSG("Touch KEY[##] is released\n");
-			//TOUCH_INFO_MSG("Touch KEY[%d] is released\n", ts->ts_data.prev_button.key_code);
+			TOUCH_INFO_MSG("Touch KEY[%d] is released\n", ts->ts_data.prev_button.key_code);
 		break;
 	case BUTTON_CANCEL:
 		input_report_key(ts->input_dev, ts->ts_data.prev_button.key_code, BUTTON_CANCLED);
 		if (unlikely(touch_debug_mask & DEBUG_BUTTON))
-			TOUCH_INFO_MSG("Touch KEY[##] is canceled\n");
-			//TOUCH_INFO_MSG("Touch KEY[%d] is canceled\n", ts->ts_data.prev_button.key_code);
+			TOUCH_INFO_MSG("Touch KEY[%d] is canceled\n", ts->ts_data.prev_button.key_code);
 		if (ts->ts_data.curr_data[0].y_position < ts->pdata->caps->y_button_boundary){
 			input_sync(ts->input_dev);
 			goto abs_report;
@@ -2163,8 +2146,7 @@ abs_report:
 		if (ts->ts_data.state == ABS_RELEASE)
 			check_log_finger_released(ts);
 		if(ts->ts_data.state == BUTTON_RELEASE)
-			TOUCH_INFO_MSG("touch_release : button[##]\n");
-		/*	TOUCH_INFO_MSG("touch_release : button[%d]\n", ts->ts_data.prev_button.key_code); */
+			TOUCH_INFO_MSG("touch_release : button[%d]\n", ts->ts_data.prev_button.key_code);
 	}
 
 	if (op_mode == OP_SINGLE && ts->ts_data.state == ABS_RELEASE)
@@ -3270,18 +3252,9 @@ static ssize_t store_lpwg_notify(struct lge_touch_data *ts, const char *buf, siz
 				else if(!touch_gesture_enable)
 					touch_device_func->suspend(ts->client);
 			}
-			else if(value[0] == 1){
-				touch_device_func->lpwg(ts->client, LPWG_MODE_CHANGE, value[0], NULL);
+			else if(value[0] == 1)
 				touch_fb_resume(&ts->client->dev);
-			}
 #endif
-            break;
-        case 7 :
-			touch_device_func->lpwg(ts->client, LPWG_STATUS_BY_PROXI, value[0], NULL);
-			mutex_lock(&ts->irq_work_mutex);
-			touch_gesture_enable = 1;
-			atomic_set(&ts->device_init, 1);
-			mutex_unlock(&ts->irq_work_mutex);
             break;
         default:
             break;
@@ -3497,7 +3470,7 @@ static int synaptics_parse_dt(struct device *dev, struct touch_platform_data *pd
 	const char *temp_string = node->name;
 	const char *reg_string = node->name;
 	u32 temp_val;
-	u32 temp_array[16];
+	u32 temp_array[10];
 
 	/* reset, irq gpio info */
 	if (node == NULL)
@@ -3515,40 +3488,26 @@ static int synaptics_parse_dt(struct device *dev, struct touch_platform_data *pd
 	}
 	len = strlen(temp_string);
 	memcpy(pdata->maker, temp_string, len);
-	rc = of_property_read_u32_array(node, "synaptics,fw_version_info", temp_array, FW_VER_INFO_NUM-1);
-	if (rc) {
+	rc = of_property_read_u32_array(node, "synaptics,fw_version_info", pdata->fw_version, FW_VER_INFO_NUM-1);
+	if(rc){
 		TOUCH_DEBUG_MSG( "Looking up %s property in node %02X %02X %02X failed",
 			"synaptics,fw_version",
-			temp_array[0], temp_array[1], temp_array[2]);
-		return -ENODEV;
-	} else {
-		for(i = 0; i < FW_VER_INFO_NUM-1; i++){
-			pdata->fw_version[i] = temp_array[i];
-		}
-		TOUCH_DEBUG_MSG("fw_ver_info : 0x%02X 0x%02X 0x%02X \n",
 			pdata->fw_version[0], pdata->fw_version[1], pdata->fw_version[2]);
+		return -ENODEV;
 	}
+	else
+		TOUCH_INFO_MSG("fw_ver_info : 0x%02X 0x%02X 0x%02X \n",
+			pdata->fw_version[0], pdata->fw_version[1], pdata->fw_version[2]);
 
-	if (pdata->fw_version[0] & 0x80) {
-		TOUCH_DEBUG_MSG("Get latter inbuilt firmware path ..., due to different type of panel");
-		rc = of_property_count_strings(node, "synaptics,fw_image");
-		TOUCH_INFO_MSG("firmware path, rc = %d ", rc);
-		if(rc){
-			for (i = 0; i < rc; i++) {
-				of_property_read_string_index(node, "synaptics,fw_image", i, &pdata->inbuilt_fw_name_id[i]);
-				TOUCH_INFO_MSG("fw_image [%d]: %s", i, pdata->inbuilt_fw_name_id[i]);
-			}
-		}
-	} else {
-		rc = of_property_read_string_index(node, "synaptics,fw_image", 0, &pdata->inbuilt_fw_name);
-		if (rc) {
-			TOUCH_DEBUG_MSG( "Looking up %s property in node %s failed",
-				"synaptics,fw_image", pdata->inbuilt_fw_name);
-			return -ENODEV;
-		}
-		else
-			TOUCH_DEBUG_MSG("fw_image: %s", pdata->inbuilt_fw_name);
+	rc = of_property_read_string(node, "synaptics,fw_image",  &pdata->inbuilt_fw_name);
+	if (rc) {
+		TOUCH_DEBUG_MSG( "Looking up %s property in node %s failed",
+			"synaptics,fw_image", pdata->inbuilt_fw_name);
+		return -ENODEV;
 	}
+	else
+		TOUCH_DEBUG_MSG("fw_image: %s",pdata->inbuilt_fw_name);
+
 	rc = of_property_read_u32(node, "lge,knock_on_type",  &temp_val);
 	if (rc) {
 		TOUCH_DEBUG_MSG( "Unable to read knock_on_type - set as 0\n" );
@@ -3571,18 +3530,7 @@ static int synaptics_parse_dt(struct device *dev, struct touch_platform_data *pd
 	if (!caps_info)
 		return -ENOMEM;
 
-	if (pdata->fw_version[0] & 0x80) {
-		TOUCH_DEBUG_MSG("Get latter panel spec ..., due to different type of panel");
-		rc = of_property_count_strings(node, "synaptics,panel_spec");
-		TOUCH_INFO_MSG("panel_spec, rc = %d ", rc);
-		if(rc){
-			for (i = 0; i < rc; i++) {
-				of_property_read_string_index(node, "synaptics,panel_spec", i, &pdata->panel_spec_id[i]);
-				TOUCH_INFO_MSG("panel_spec [%d]: %s", i, pdata->panel_spec_id[i]);
-			}
-		}
-	} else {
-		rc = of_property_read_string_index(node, "synaptics,panel_spec", 0, &pdata->panel_spec);
+	rc = of_property_read_string(node, "synaptics,panel_spec",  &pdata->panel_spec);
 		if (rc) {
 			TOUCH_DEBUG_MSG( "Looking up %s property in node %s failed",
 				"synaptics,panel_spec", pdata->panel_spec);
@@ -3590,7 +3538,6 @@ static int synaptics_parse_dt(struct device *dev, struct touch_platform_data *pd
 		else {
 			TOUCH_DEBUG_MSG("panel_spec: %s",pdata->panel_spec);
 		}
-	}
 
 	/*global_access_pixel parsing*/
 	rc = of_property_read_u32(node, "synaptics,global_access_pixel", &pdata->global_access_pixel);
@@ -3739,14 +3686,6 @@ static int synaptics_parse_dt(struct device *dev, struct touch_platform_data *pd
 			caps_info->maker_id_gpio =  0;
 		} else
 			caps_info->maker_id_gpio =  temp_val;
-
-		rc = of_property_read_u32(pp, "maker_id2_gpio", &temp_val);
-		if (rc && (rc != -EINVAL)) {
-			TOUCH_DEBUG_MSG( "Unable to read maker_id2_gpio\n");
-			caps_info->maker_id2_gpio =  0;
-		} else{
-			caps_info->maker_id2_gpio =  temp_val;
-		}
 
 		prop = of_find_property(pp, "ghost_detection_value", NULL);
 		if (prop) {

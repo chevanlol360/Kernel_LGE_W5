@@ -47,7 +47,7 @@ static struct msm_sensor_power_setting hi543_power_setting_rev_a[] = {
 		.delay = 1,
 	},
 #if defined(CONFIG_MACH_MSM8X10_W5)
-#if defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
+#if defined(CONFIG_MACH_MSM8X10_W5C_VZW)
 	{
 		.seq_type = SENSOR_GPIO,
 		.seq_val = SENSOR_GPIO_STANDBY,
@@ -62,21 +62,12 @@ static struct msm_sensor_power_setting hi543_power_setting_rev_a[] = {
 		.config_val = GPIO_OUT_HIGH,
 		.delay = 1,
 	},
-#if defined(CONFIG_MACH_MSM8226_E9WIFI_OPEN_KR)
-	{
-		.seq_type = SENSOR_GPIO,
-		.seq_val = SENSOR_GPIO_VAF,
-		.config_val = GPIO_OUT_HIGH,
-		.delay = 0,
-	},
-#else
 	{
 		.seq_type = SENSOR_GPIO,
 		.seq_val = SENSOR_GPIO_STANDBY,
 		.config_val = GPIO_OUT_HIGH,
 		.delay = 0,
 	},
-#endif
 #endif
 	{
 		.seq_type = SENSOR_GPIO,
@@ -99,7 +90,7 @@ static struct msm_sensor_power_setting hi543_power_setting_rev_a[] = {
 
 };
 
-#if defined(CONFIG_MACH_MSM8X10_W5) && !defined(CONFIG_MACH_MSM8X10_W5C_VZW) && !defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
+#if defined(CONFIG_MACH_MSM8X10_W5) && !defined(CONFIG_MACH_MSM8X10_W5C_VZW)
 static struct msm_sensor_power_setting hi543_power_setting_rev_b[] = {
 	 {	/* Set GPIO_RESET to low to disable power on reset*/
 		.seq_type = SENSOR_GPIO,
@@ -162,8 +153,8 @@ static struct msm_sensor_power_setting hi543_power_setting_rev_b[] = {
 };
 #endif
 
-#if defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
-static struct msm_sensor_power_setting hi543_power_setting_w5c[] = {
+#if defined(CONFIG_MACH_MSM8X10_W5C_VZW)
+static struct msm_sensor_power_setting hi543_power_setting_rev_c_w5c[] = {
 	 {	/* Set GPIO_RESET to low to disable power on reset*/
 		.seq_type = SENSOR_GPIO,
 		.seq_val = SENSOR_GPIO_RESET,
@@ -296,42 +287,42 @@ static int __init hi543_init_module(void)
 #if defined(CONFIG_MACH_MSM8X10_W5)
 	switch(lge_get_board_revno()) {
 		case HW_REV_A:
-			printk("%s: Sensor power is set as Rev.A, line(%d)\n", __func__, __LINE__);
+			printk("%s: Sensor power is set as Rev.A\n", __func__);
 			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_a;
 			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_a);
 			break;
 		case HW_REV_B:
 			#if defined(CONFIG_MACH_MSM8X10_W5C_VZW)
-			printk("%s: (W5C_VZW)Sensor power is set as over Rev.A, line(%d)\n", __func__, __LINE__);
+			printk("%s: (W5C_VZW)Sensor power is set as over Rev.A\n", __func__);
 			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_a;
 			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_a);
 			break;
-			#elif defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
-			printk("%s: Sensor power is set as Rev.B, line(%d)\n", __func__, __LINE__);
-			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_w5c;
-			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_w5c);
+			#else
+			printk("%s: Sensor power is set as Rev.B\n", __func__);
+			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_b;
+			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_b);
 			break;
 			#endif
 		case HW_REV_C:
-			#if defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
-			printk("%s: (W5C_VZW)Sensor power is set as Rev.C, line(%d)\n", __func__, __LINE__);
-			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_w5c;
-			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_w5c);
+			#if defined(CONFIG_MACH_MSM8X10_W5C_VZW)
+			printk("%s: (W5C_VZW)Sensor power is set as Rev.C\n", __func__);
+			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_c_w5c;
+			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_c_w5c);
 			break;
 			#else
-			printk("%s: Sensor power is set as Rev.B, line(%d)\n", __func__, __LINE__);
+			printk("%s: Sensor power is set as Rev.B\n", __func__);
 			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_b;
 			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_b);
 			break;
 			#endif
 		default:
-			#if defined(CONFIG_MACH_MSM8X10_W5C_VZW) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
-			printk("%s: (W5C_VZW)Sensor power is set as over Rev.C, line(%d)\n", __func__, __LINE__);
-			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_w5c;
-			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_w5c);
+			#if defined(CONFIG_MACH_MSM8X10_W5C_VZW)
+			printk("%s: (W5C_VZW)Sensor power is set as over Rev.C\n", __func__);
+			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_c_w5c;
+			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_c_w5c);
 			break;
 			#else
-			printk("%s: Sensor power is set as Rev.B, line(%d)\n", __func__, __LINE__);
+			printk("%s: Sensor power is set as Rev.B\n", __func__);
 			hi543_s_ctrl.power_setting_array.power_setting = hi543_power_setting_rev_b;
 			hi543_s_ctrl.power_setting_array.size = ARRAY_SIZE(hi543_power_setting_rev_b);
 			break;

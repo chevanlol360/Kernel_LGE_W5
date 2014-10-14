@@ -128,7 +128,7 @@ static void rt8542_hw_reset(void)
 	if (gpio_is_valid(gpio)) {
 		gpio_direction_output(gpio, 1);
 		gpio_set_value_cansleep(gpio, 1);
-		mdelay(2);
+		mdelay(10);
 	}
 	else
 		pr_err("%s: gpio is not valid !!\n", __func__);
@@ -249,10 +249,10 @@ void rt8542_backlight_on(int level)
 	if (backlight_status != BL_ON){/*                                                                        */
 			
 		rt8542_hw_reset();
-		rt8542_write_reg(main_rt8542_dev->client, 0x05, 0x04);
-
+	
 		/*  OVP(32V), MAX BLED(12.1mA), OCP(1.0A), Boost Frequency(500khz) */
 		rt8542_write_reg(main_rt8542_dev->client, 0x02, 0x52);
+			
 		/*                                                                          */ 
 		bl_ctrl = 0;
 		rt8542_read_reg(main_rt8542_dev->client, 0x0A, &bl_ctrl);

@@ -23,7 +23,7 @@
 
 &soc {
 	serial@f991f000 {
-		status = "disable";
+		status = "ok";
 	};
 
 	syncoam_sm100_rev_a {
@@ -75,10 +75,7 @@
 		status = "disabled";
 	};
 
-	lge_sw_irrc { /* X10_IRRC */
-        status = "ok";
-        revision = "rev_a...";
-        };
+
 };
 
 &soc {

@@ -474,9 +474,6 @@ struct msm_otg {
 #ifdef CONFIG_LGE_PM_USB_ID
 	struct qpnp_vadc_chip		*vadc_dev;
 #endif
-#ifdef CONFIG_LGE_PM_VZW_FAST_CHG
-    int chg_det_count;
-#endif
 };
 
 struct ci13xxx_platform_data {

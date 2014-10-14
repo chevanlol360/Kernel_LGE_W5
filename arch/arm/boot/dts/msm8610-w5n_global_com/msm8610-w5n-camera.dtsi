@@ -56,7 +56,7 @@
 
 &i2c {
 
-/* IMX111(8M) & IMX219(8M) actuator */
+/* IMX111(8M) actuator */
 	actuator1: qcom,actuator@18 {
 		cell-index = <1>;	//Use Af_main_0 of dw9714 with IMX111(8M)
 		reg = <0x18 0x0>;
@@ -299,10 +299,10 @@
 		revision = "rev_b...";
 	};
 /* imx111 Rev B ~ */
-	imx111: qcom,camera_rev_b@20 {
+	imx111: qcom,camera_rev_b@34 {
 		compatible = "qcom,imx111";
-		reg = <0x20 0x0>;
-		qcom,slave-id = <0x20 0x0 0x111>;
+		reg = <0x34 0x0>;
+		qcom,slave-id = <0x34 0x0 0x111>;
 		qcom,csiphy-sd-index = <0>;
 		qcom,csid-sd-index = <0>;
 		qcom,actuator-src = <&actuator1>;
@@ -334,53 +334,15 @@
 		qcom,csi-lane-mask = <0x7>;
 		qcom,sensor-position = <0>;
 		qcom,sensor-mode = <0>;
-		status = "okay";
+		status = "decide_in_lk";
 		revision = "rev_b...";
 	};
 
-	imx219: qcom,camera_rev_b@34 {
-		compatible = "qcom,imx219";
-		reg = <0x34 0x0>;
-		qcom,slave-id = <0x34 0x0 0x219>;
-		qcom,csiphy-sd-index = <0>;
-		qcom,csid-sd-index = <0>;
-		qcom,actuator-src = <&actuator1>;
-		qcom,led-flash-src = <&led_flash0>;
-		qcom,eeprom-src = <&eeprom1>;
-		qcom,mount-angle = <90>;
-		qcom,sensor-name = "imx219";
-		cam_vdig-supply = <&pm8110_l7>;		//CAM_DVDD_1V8_1V2
-		cam_vio-supply = <&pm8110_l7>;
-		cam_vana-supply = <&pm8110_l7>;            /* Dummy VANA Setting, We never use this LDO7 for DIG, youngwook.song@lge.com, 2013.08.26  */
-		qcom,cam-vreg-name = "cam_vdig", "cam_vio";//, "cam_vana";
-		qcom,cam-vreg-type = <0 0>;
-		qcom,cam-vreg-min-voltage = <1200000 1800000 2850000>;
-		qcom,cam-vreg-max-voltage = <1200000 1800000 2850000>;
-		qcom,cam-vreg-op-mode = <200000 80000 80000>;
-		qcom,gpio-no-mux = <0>;
-		gpios = <&msmgpio 13 0>,		//MAIN_CAM_MCLK
-			<&msmgpio 21 0>, 		//MAIN_RESET_N
-			<&msmgpio 20 0>,			//VCM_PWDN, //CAM_VCM_2V8, MAIN_CAM0_VCM_PWDN=GPIO36
-			<&msmgpio 85 0>;			//CAM_AVDD_2V8, LDO1_EN=GPIO 62
-		qcom,gpio-reset = <1>;
-		qcom,gpio-standby = <2>;		// +VCM_2V8 (AF)
-		qcom,gpio-vana = <3>;		// =CAM_AVDD_2V8
-		qcom,gpio-req-tbl-num = <0 1 2 3>;
-		qcom,gpio-req-tbl-flags = <1 0 0 0>;
-		qcom,gpio-req-tbl-label = "CAMIF_MCLK", "CAM_RESET1", "CAM_STANDBY", "MAIN_VANA_EN";
-		qcom,csi-lane-assign = <0xe4>;
-		qcom,csi-lane-mask = <0x07>;
-		qcom,sensor-position = <0>;
-		qcom,sensor-mode = <0>;
-		status = "okay";
-		revision = "rev_b...";
-	};
 };
 
 / {
 	aliases {
 		hi543 = &hi543;		/* 5M Main Camera */
 		imx111 = &imx111;	/* 8M Main Camera */
-		imx219 = &imx219;	/* 8M Main Camera */
 	};
 };
