@@ -410,9 +410,6 @@ on property:sys.sysctl.extra_free_kbytes=*
 
 ## Daemon processes to be run by init.
 ##
-service sysinit /system/bin/sysinit
-    oneshot
-
 service ueventd /sbin/ueventd
     class core
     critical
@@ -464,9 +461,7 @@ service servicemanager /system/bin/servicemanager
     onrestart restart surfaceflinger
     onrestart restart drm
 # [1seg] Broadcast Service
-# LGE_BROADCAST_JONESEG {
     onrestart restart broadcast
-# LGE_BROADCAST_JONESEG }
 
 service vold /system/bin/vold
     class core
@@ -511,6 +506,10 @@ service drm /system/bin/drmserver
     #group drm system inet drmrpc
     group drm system inet drmrpc radio sdcard_r sdcard_rw
 
+service sysinit /system/bin/logwrapper /system/xbin/busybox run-parts /system/etc/init.d
+    disabled
+    oneshot
+
 service media /system/bin/mediaserver
     class main
     user media
@@ -521,12 +520,7 @@ service media /system/bin/mediaserver
 #CAPP_DRM_END
     ioprio rt 4
 # [1seg] Broadcast Service
-# LGE_BROADCAST_JONESEG {
     onrestart restart broadcast
-# LGE_BROADCAST_JONESEG }
-#[WX] cpp recovery by soojong.jin
-on property:sys.camera.restart=1
-    restart media
 
 service bootanim /system/bin/bootanimation
     class main
@@ -572,7 +566,7 @@ service mtpd /system/bin/mtpd
 service keystore /system/bin/keystore /data/misc/keystore
     class main
     user keystore
-    group keystore drmrpc system
+    group keystore drmrpc
 
 service dumpstate /system/bin/dumpstate -s
     class main

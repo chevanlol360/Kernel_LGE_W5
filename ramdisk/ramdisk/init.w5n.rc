@@ -1,7 +1,7 @@
 import /init.gammaw.rc
-import /init.w5_product.rc
-import /init.w5.usb.rc
-import /init.w5.led.rc
+import /init.w5n_product.rc
+import /init.w5n.usb.rc
+import /init.w5n.led.rc
 
 on early-init
     mkdir /firmware 0771 system system
@@ -18,7 +18,7 @@ on init
 # End Immersion changes
 
 on fs
-    mount_all fstab.w5
+    mount_all fstab.w5n
     
     # Executing tune2fs to reserve some region in /data. (40MB)
     exec /system/bin/tune2fs -u system -r 10240 /dev/block/platform/msm_sdcc.1/by-name/userdata
@@ -38,7 +38,7 @@ on fs
 
 #// LGE_UPDATE_S DMS_SYSTEM_GOTA dms-fota@lge.com 2012/11/09
      start recovery_write
-#// LGE_UPDATE_E DMS_SYSTEM_GOTA dms-fota@lge.com 2012/11/09	
+#// LGE_UPDATE_E DMS_SYSTEM_GOTA dms-fota@lge.com 2012/11/09
 on boot
 # Begin Immersion changes
     chmod 660 /dev/tspdrv
@@ -67,7 +67,7 @@ on post-fs-data
   chown system system /sys/devices/f9925000.i2c/i2c-3/3-0039/prox_cal_data
   chmod 0660  /sys/devices/f9925000.i2c/i2c-3/3-0039/prox_cal_data
   chown system system /sys/devices/f9925000.i2c/i2c-3/3-0039/pdata
-  chmod 0660  /sys/devices/f9925000.i2c/i2c-3/3-0039/pdata  
+  chmod 0660  /sys/devices/f9925000.i2c/i2c-3/3-0039/pdata
 
 # Allow usb charging to be disabled persistently
 on property:persist.usb.chgdisabled=1
@@ -79,7 +79,7 @@ on property:persist.usb.chgdisabled=0
 on boot
     insmod /system/lib/modules/adsprpc.ko
     chown system system /sys/class/power_supply/battery/pseudo_batt
-    
+
 on property:persist.service.fakebatt=1
     write /sys/class/power_supply/battery/pseudo_batt "1 1 100 40 4100 80 1"
 
@@ -144,7 +144,7 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
    class late_start
    user camera
    group camera system inet input graphics
-   
+
 #LGE_CHANGE_S, restart qcamerasvr when restarting mediaserver and servicemanager, yousung.kang@lge.com
 on property:init.svc.media=restarting
     restart qcamerasvr

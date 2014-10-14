@@ -44,9 +44,6 @@ on post-fs-data
     mkdir /persist-lg/multimedia/scnt 0770 media divxdrm
     mkdir /persist-lg/multimedia/scnt/sdadf 0770 media divxdrm
 
-    #MM Proxy
-    mkdir /persist-lg/mmoprt 0771 system lg_fota
-
     #CAPP_BLUEERROR_HANDLER: temp version, it will be removed
     chown root system /data/dontpanic
     chmod 0775 /data/dontpanic

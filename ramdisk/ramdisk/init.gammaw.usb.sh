@@ -37,12 +37,6 @@ serialno=`getprop persist.usb.serialno`
 case "$serialno" in
     "")
     serialnum=`getprop ro.serialno`
-    case "$serialnum" in
-        "")
-        serialnum=`cat /sys/class/android_usb/android0/iSerial_redi`
-        ;;
-        * ) ;;
-    esac
     echo "$serialnum" > /sys/class/android_usb/android0/iSerial
     ;;
     *)
