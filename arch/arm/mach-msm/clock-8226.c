@@ -3303,12 +3303,11 @@ static struct clk_lookup msm_clocks_8226[] = {
 
 	/* I2C Clocks */
 #ifdef CONFIG_MACH_LGE  /*                                     */
+	CLK_LOOKUP("iface_clk",          gcc_blsp1_ahb_clk.c, "f9924000.i2c"),
+	CLK_LOOKUP("core_clk", gcc_blsp1_qup2_i2c_apps_clk.c, "f9924000.i2c"),
+
 	CLK_LOOKUP("iface_clk",          gcc_blsp1_ahb_clk.c, "f9925000.i2c"),
 	CLK_LOOKUP("core_clk", gcc_blsp1_qup3_i2c_apps_clk.c, "f9925000.i2c"),
-#endif
-#if defined (CONFIG_USE_QUP1_I2C) || defined (CONFIG_SND_SOC_TPA2028D_STEREO)
-	CLK_LOOKUP("iface_clk", 		 gcc_blsp1_ahb_clk.c, "f9923000.i2c"),
-	CLK_LOOKUP("core_clk", gcc_blsp1_qup1_i2c_apps_clk.c, "f9923000.i2c"),
 #endif
 	CLK_LOOKUP("iface_clk",          gcc_blsp1_ahb_clk.c, "f9926000.i2c"),
 	CLK_LOOKUP("core_clk", gcc_blsp1_qup4_i2c_apps_clk.c, "f9926000.i2c"),
@@ -3325,10 +3324,9 @@ static struct clk_lookup msm_clocks_8226[] = {
 
 	CLK_LOOKUP("iface_clk",       gcc_blsp1_ahb_clk.c, "f995e000.serial"),
 	CLK_LOOKUP("core_clk", gcc_blsp1_uart2_apps_clk.c, "f995e000.serial"),
-#ifndef CONFIG_USE_QUP1_I2C
+
 	CLK_LOOKUP("iface_clk",          gcc_blsp1_ahb_clk.c, "f9923000.spi"),
 	CLK_LOOKUP("core_clk", gcc_blsp1_qup1_spi_apps_clk.c, "f9923000.spi"),
-#endif
 #ifdef CONFIG_LGE_BLUETOOTH
 	CLK_LOOKUP("iface_clk", gcc_blsp1_ahb_clk.c, "f9920000.uart"),
 	CLK_LOOKUP("core_clk", gcc_blsp1_uart4_apps_clk.c, "f9920000.uart"),

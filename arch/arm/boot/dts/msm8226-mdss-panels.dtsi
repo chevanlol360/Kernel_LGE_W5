@@ -17,5 +17,3 @@
 /include/ "dsi-panel-nt35590-720p-cmd.dtsi"
 /include/ "dsi-panel-ssd2080m-720p-video.dtsi"
 /include/ "dsi-panel-jdi-1080p-video.dtsi"
-/include/ "dsi-panel-lgd_lvds_wxga_video.dtsi"
-/include/ "dsi-panel-lgd-asus-wxga-video.dtsi"

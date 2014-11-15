@@ -16,10 +16,10 @@
 };
 
 &mdss_dsi0 {
-	qcom,dsi-pref-prim-pan = <&dsi_tovis_hvga_cmd>;
+	qcom,dsi-pref-prim-pan = <&dsi_w35_tovis_hvga_cmd>;
 };
 
-&dsi_tovis_hvga_cmd {
+&dsi_w35_tovis_hvga_cmd {
 	qcom,cont-splash-enabled;
 	status = "ok";
 };

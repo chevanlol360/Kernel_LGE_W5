@@ -953,39 +953,6 @@ static struct gpiomux_setting main_cam_id_gpio_act_config = {
 	.pull = GPIOMUX_PULL_UP,
 	.dir = GPIOMUX_IN
 };
-
-static struct msm_gpiomux_config pcb_indicator[] __initdata = {
-	{
-		.gpio = 59,	/* Low Band */
-		.settings = {
-			[GPIOMUX_ACTIVE] = &pcb_indicator_config,
-			[GPIOMUX_SUSPENDED] = &pcb_indicator_config,
-		},
-	},
-	{
-		.gpio = 83,	/* High Band */
-		.settings = {
-			[GPIOMUX_ACTIVE] = &pcb_indicator_config,
-			[GPIOMUX_SUSPENDED] = &pcb_indicator_config,
-		},
-	},
-	{
-		.gpio = 84,	/* FMR */
-		.settings = {
-			[GPIOMUX_ACTIVE] = &pcb_indicator_config,
-			[GPIOMUX_SUSPENDED] = &pcb_indicator_config,
-		},
-	}
-};
-#endif /*                 */
-
-#ifdef CONFIG_MACH_LGE
-static struct gpiomux_setting main_cam_id_gpio_act_config = {
-	.func = GPIOMUX_FUNC_GPIO,
-	.drv = GPIOMUX_DRV_2MA,
-	.pull = GPIOMUX_PULL_UP,
-	.dir = GPIOMUX_IN
-};
 static struct gpiomux_setting main_cam_id_gpio_sus_config = {
 	.func = GPIOMUX_FUNC_GPIO,
 	.drv = GPIOMUX_DRV_2MA,
@@ -1076,7 +1043,6 @@ void __init msm8610_init_gpiomux(void)
 				msm_gpiomux_install(&gpio_func_reserved_pin_config, 1);
 				}
             msm_gpiomux_install(msm_sensor_configs_revB, ARRAY_SIZE(msm_sensor_configs_revB)); //                                                                          
-			msm_gpiomux_install(main_cam_id_gpio, ARRAY_SIZE(main_cam_id_gpio));	/* MAIN_CAM_ID */
 			break;
 		case HW_REV_E :
 		case HW_REV_1_0 :
@@ -1085,7 +1051,6 @@ void __init msm8610_init_gpiomux(void)
 				msm_gpiomux_install(&gpio_func_reserved_pin_config, 1);
 				}
             msm_gpiomux_install(msm_sensor_configs_revB, ARRAY_SIZE(msm_sensor_configs_revB)); //                                                                          
-			msm_gpiomux_install(main_cam_id_gpio, ARRAY_SIZE(main_cam_id_gpio));	/* MAIN_CAM_ID */
 			break;
 		case HW_REV_1_1 :
 		default :

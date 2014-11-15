@@ -170,12 +170,12 @@
 		com,vin-sel = <2>; /* select 1.8 V source */
 		qcom,src-select = <0>;      /* QPNP_PIN_SEL_FUNC_CONSTANT */
 		qcom,master-en = <1>;
-		revision = "rev_b...rev_d";
+		revision = "rev_b...";
 		reg = <0xc100 0x100>;
 		qcom,pin-num = <2>;
 	};
 /* 2013-09-13, sungbo0.jung@lge.com, changed EAR_MIC_EN for rev.B [END] */
-/* 2013-11-30, yoonsin.woo@lge.com, not used EAR_MIC_EN for rev.E [END] */
+
 	/* GPIO 3 : Reserved Pin */
 	/* QPNP_PIN_MODE_DIG_IN /QPNP_PIN_PULL_DOWN / Disable GPIO */
 	gpio@c200 {
@@ -316,6 +316,17 @@
 };
 
 &rpm_bus {
+
+	/* bohyun.jung@lge.com - FIX on LPDDR bit-flip */
+	rpm-regulator-ldoa2 {
+		status = "okay";
+		pm8110_l2: regulator-l2 {
+			regulator-min-microvolt = <1225000>;
+			regulator-max-microvolt = <1225000>;
+			qcom,init-voltage = <1225000>;
+			status = "okay";
+		};
+	};
 
 	rpm-regulator-ldoa7 {
 		status = "okay";

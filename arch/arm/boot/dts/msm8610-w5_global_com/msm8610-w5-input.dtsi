@@ -56,9 +56,11 @@
 		synaptics_s220x@20 {
 			status = "ok";
 			revision = "rev_d...";
-			synaptics,fw_version_info = <0x32 0x04 0x51>;
-			synaptics,fw_image = "synaptics/w5_global_com/PLG317-V1.11-PR1600582-DS4.3.5.1.16_3204518B.img";
-                        synaptics,panel_spec = "synaptics/w5_global_com/w5_global_com_limit.txt";
+			synaptics,fw_version_info = <0x82 0x04 0x51>;
+			synaptics,fw_image = "synaptics/w5_global_com/PLG389-V1.10-PR1600582-DS4.3.5.1.16_1204518A.img", /* panel id 0 */
+					     "synaptics/w5_global_com/PLG317-V1.14-PR1600582-DS4.3.5.1.16_3204518E.img"; /* panel id 1 */
+                        synaptics,panel_spec = "synaptics/w5_global_com/w5_Suntel_limit.txt", /* panel id 0 */
+                        			"synaptics/w5_global_com/w5_Inotek_limit.txt";/* panel id 1 */
                         synaptics,global_access_pixel = <10>;
 			lge,knock_on_type = <1>;
 			synaptics,platform_data	{
@@ -70,9 +72,9 @@
 				lcd_y = <800>;
 				use_vio_regulator = <1>;
 				gpio_vdd_en = <82>;
-			    	/*maker_id  disable(0), enable(1)*/
-				maker_id = <0>;
-				maker_id_gpio = <76>;
+				/*maker_id  disable(0), enable(1)*/
+				maker_id = <1>;
+				maker_id_gpio = <77>;
 				palm_detect_mode = <1>;
 				ghost_detection_enable = <0>;
 				ghost_detection_value = <200 5 4 6 5 5 10 500 100 6 5>;

@@ -231,7 +231,7 @@ int32_t read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl)
 				e_ctrl->i2c_client.cci_client->sid++;
 				#endif
 			#else
-				#if defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5TS_GLOBAL_COM)
+				#if defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM)
 				if(lge_camera_info){
 					if(!strncmp(lge_camera_info, "imx111", 6)){
 						CDBG("%s: (global)I2C address : 0x%x\n", __func__, e_ctrl->i2c_client.client->addr);
@@ -444,7 +444,7 @@ static struct v4l2_subdev_ops msm_eeprom_subdev_ops = {
 };
 
 //                                                                                
-#if defined(CONFIG_IMX111)|| defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5TS_GLOBAL_COM)
+#if defined(CONFIG_IMX111)|| defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM)
 static int msm_eeprom_check_CRC(struct msm_eeprom_ctrl_t *e_ctrl)
 {
 	int CRC_code, CRC_sum, counter;
@@ -590,7 +590,7 @@ int32_t msm_eeprom_i2c_probe(struct i2c_client *client,
 		CDBG("memory_data[%d] = 0x%X\n", j, e_ctrl->memory_data[j]);
 
 	//                                                                                
-#if defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5TS_GLOBAL_COM)
+#if defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5N_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM)
 	if(lge_camera_info){
 		if(!strncmp(lge_camera_info, "imx111", 6)){
 			pr_err("%s (GLOBAL) call msm_eeprom_check_CRC\n", __func__);

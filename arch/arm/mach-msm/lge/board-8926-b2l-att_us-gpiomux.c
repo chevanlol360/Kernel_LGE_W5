@@ -623,7 +623,7 @@ static struct gpiomux_setting lcd_rst_act_cfg = {
 };
 
 
-#if 0 //defined(CONFIG_TSPDRV) //for sm100
+#if defined(CONFIG_TSPDRV) //for sm100
 static struct gpiomux_setting vibrator_suspend_cfg = {
        .func = GPIOMUX_FUNC_GPIO,
        .drv = GPIOMUX_DRV_2MA,
@@ -1162,7 +1162,6 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#if 0
 	{
 		.gpio = 107,
 		.settings = {
@@ -1170,7 +1169,6 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#endif
 	{
 		.gpio = 108,
 		.settings = {
@@ -1178,111 +1176,19 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#if 0
-	{
-		.gpio = 109,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &gpio_keys_active,
-			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
-		},
-	},
-#endif
+        {
+                .gpio = 109,
+                .settings = {
+                        [GPIOMUX_ACTIVE]    = &gpio_keys_active,
+                        [GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
+                },
+        },
 };
 
 // GPIO related function <<21.LOGIC>>
 //Need to set GPIO[112] RGB_EN
 static struct msm_gpiomux_config gpio_func_logic_configs[] __initdata = {
 };
-#ifdef CONFIG_MAX17048_FUELGAUGE
-// GPIO related function <<22.FUEL GAUGE>>
-//+GPIO[002] FUEL_I2C_SDA
-//+GPIO[003] FUEL_I2C_SCL
-//Need to set GPIO[110] FUEL_INT_N
-
-static struct gpiomux_setting max17048_sda_cfg = {
-	.func = GPIOMUX_FUNC_3,
-	.drv = GPIOMUX_DRV_8MA,
-	.pull = GPIOMUX_PULL_NONE,
-};
-
-static struct gpiomux_setting max17048_scl_cfg = {
-	.func = GPIOMUX_FUNC_3,
-	.drv = GPIOMUX_DRV_8MA,
-	.pull = GPIOMUX_PULL_NONE,
-};
-
-static struct gpiomux_setting max17048_irq_cfg = {
-	.func = GPIOMUX_FUNC_GPIO,
-	.drv = GPIOMUX_DRV_6MA,
-	.dir = GPIOMUX_IN,
-};
-
-
-static struct msm_gpiomux_config msm_fuel_configs[] __initdata = {
-	{
-		/* I2C SDA */
-		.gpio      = 2,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &max17048_sda_cfg,
-			[GPIOMUX_SUSPENDED] = &max17048_sda_cfg,
-		},
-	},
-	{
-		/* I2C SCL */
-		.gpio      = 3,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &max17048_scl_cfg,
-			[GPIOMUX_SUSPENDED] = &max17048_scl_cfg,
-		},
-	},
-	{
-		/* IRQ */
-		.gpio      = 110,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &max17048_irq_cfg,
-			[GPIOMUX_SUSPENDED] = &max17048_irq_cfg,
-		},
-	},
-};
-
-
-#endif
-
-// GPIO related function <<23.External Charger>>
-
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-static struct gpiomux_setting rt9536_irq_cfg = {
-	.func = GPIOMUX_FUNC_GPIO,
-	.drv = GPIOMUX_DRV_6MA,
-	.dir = GPIOMUX_IN,
-};
-
-static struct gpiomux_setting rt9536_en_cfg = {
-	.func = GPIOMUX_FUNC_GPIO,
-	.drv = GPIOMUX_DRV_2MA,
-	.pull = GPIOMUX_PULL_NONE,
-	.dir = GPIOMUX_OUT_LOW,
-};
-
-
-static struct msm_gpiomux_config msm_rt9536_configs[] __initdata = {
-	{
-		.gpio = 5,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &rt9536_irq_cfg,
-			[GPIOMUX_SUSPENDED] = &rt9536_irq_cfg,
-		},
-    },
-    {
-		.gpio = 34,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &rt9536_en_cfg,
-			[GPIOMUX_SUSPENDED] = &rt9536_en_cfg,
-		},
-    },
-};
-#endif
-
 #endif
 
 void __init msm8226_init_gpiomux(void)
@@ -1437,17 +1343,6 @@ void __init msm8226_init_gpiomux(void)
 	
 	// GPIO related function <<21.LOGIC>>
 	msm_gpiomux_install(gpio_func_logic_configs, ARRAY_SIZE(gpio_func_logic_configs));
-
-	// GPIO related function <<22.FUEL GAUGE>>
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	msm_gpiomux_install(msm_fuel_configs, ARRAY_SIZE(msm_fuel_configs));
-#endif
-
-   // GPIO related function <<23.External Charger>>
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	msm_gpiomux_install(msm_rt9536_configs, ARRAY_SIZE(msm_rt9536_configs));
-#endif
-
 #endif
 
 #ifndef CONFIG_MACH_LGE	
@@ -1471,7 +1366,7 @@ void __init msm8226_init_gpiomux(void)
 msm_gpiomux_install(msm_auxpcm_configs,
 		ARRAY_SIZE(msm_auxpcm_configs));
 
-#if 0// defined(CONFIG_TSPDRV)
+#if defined(CONFIG_TSPDRV)
 	msm_gpiomux_install(vibrator_configs, ARRAY_SIZE(vibrator_configs));
 #endif
 

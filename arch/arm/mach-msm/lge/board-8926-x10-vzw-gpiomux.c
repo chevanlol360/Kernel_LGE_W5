@@ -621,7 +621,7 @@ static struct gpiomux_setting lcd_rst_act_cfg = {
 };
 
 
-#if 0 //defined(CONFIG_TSPDRV) //for sm100
+#if defined(CONFIG_TSPDRV) //for sm100
 static struct gpiomux_setting vibrator_suspend_cfg = {
        .func = GPIOMUX_FUNC_GPIO,
        .drv = GPIOMUX_DRV_2MA,
@@ -1160,7 +1160,6 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#if 0
 	{
 		.gpio = 107,
 		.settings = {
@@ -1168,7 +1167,6 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#endif
 	{
 		.gpio = 108,
 		.settings = {
@@ -1176,15 +1174,13 @@ static struct msm_gpiomux_config msm_keypad_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
 		},
 	},
-#if 0
-	{
-		.gpio = 109,
-		.settings = {
-			[GPIOMUX_ACTIVE]    = &gpio_keys_active,
-			[GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
-		},
-	},
-#endif
+        {
+                .gpio = 109,
+                .settings = {
+                        [GPIOMUX_ACTIVE]    = &gpio_keys_active,
+                        [GPIOMUX_SUSPENDED] = &gpio_keys_suspend,
+                },
+        },
 };
 
 // GPIO related function <<21.LOGIC>>
@@ -1367,7 +1363,7 @@ void __init msm8226_init_gpiomux(void)
 msm_gpiomux_install(msm_auxpcm_configs,
 		ARRAY_SIZE(msm_auxpcm_configs));
 
-#if 0//defined(CONFIG_TSPDRV)
+#if defined(CONFIG_TSPDRV)
 	msm_gpiomux_install(vibrator_configs, ARRAY_SIZE(vibrator_configs));
 #endif
 

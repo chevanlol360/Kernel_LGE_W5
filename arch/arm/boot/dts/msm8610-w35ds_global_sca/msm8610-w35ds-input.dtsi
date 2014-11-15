@@ -62,7 +62,7 @@
 			status = "ok";
 			revision = "rev_e...";
 			synaptics,fw_version_info = <0x24 0x03 0x21>;
-			synaptics,fw_image = "synaptics/w35ds_global_sca/PLG348_V0.01_PR1599307_DS4.3.5.1.16_24032101.img";
+			synaptics,fw_image = "synaptics/w35ds_global_sca/PLG348_V1.10_PR1599307_DS4.3.5.1.16_2403218A.img";
 			synaptics,panel_spec = "synaptics/w35ds_global_sca/w35ds_global_sca_limit.txt";
 			lge,knock_on_type = <1>;
 			synaptics,platform_data	{
@@ -73,7 +73,7 @@
 				maker_id = <0>;
 				maker_id_gpio = <0>;
 				palm_detect_mode = <1>;
-				ghost_detection_enable = <1>;
+				ghost_detection_enable = <0>;
 				ghost_detection_value = <200 50 8 6 11 5 10 500 100 6 5>;
 			};
 		};

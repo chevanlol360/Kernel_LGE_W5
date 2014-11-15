@@ -75,7 +75,7 @@
 				lcd_y = <800>;
 				use_vio_regulator = <1>;
 				gpio_vdd_en = <75>;
-			    	/*maker_id  disable(0), enable(1)*/
+				/*maker_id  disable(0), enable(1)*/
 				maker_id = <0>;
 				maker_id_gpio = <76>;
 				palm_detect_mode = <1>;

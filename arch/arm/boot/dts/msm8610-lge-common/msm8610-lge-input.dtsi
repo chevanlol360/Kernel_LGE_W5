@@ -337,6 +337,7 @@
 				panel_type = <0>;
 				maker_id = <0>;
 				maker_id_gpio = <0>;
+				maker_id2_gpio = <0>;
 				finger_reg_offset=<0>; /*s22002 : 0, s2200 : 1*/
 				button_support = <1>;
 				y_button_boundary	= <0>;
@@ -438,9 +439,7 @@
 				accuracy_filter_enable = <0>;
 				ghost_finger_solution_enable = <0>;
 				ghost_detection_enable = <0>;
-				ghost_detection_button_enable = <0>;
-				/*booting time, duration, jitter, finger diff, subtraction time, finger-subtraction-cnt, force-cont-mode,long press cnt, button duration, button int num, time after rebase*/
-				ghost_detection_value = <200 50 10 6 11 5 10 500 100 6 5>;
+				ghost_detection_jitter_value = <10>;
 				irqflags = <0x00000002>;
 				/*pwr*/
 				use_regulator = <0>;

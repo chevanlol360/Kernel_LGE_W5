@@ -93,9 +93,9 @@ struct synaptics_ts_data {
 	struct lge_touch_data *lge_touch_ts;
 	struct hrtimer		palm_timer;
 	struct work_struct	palm_work;
+	atomic_t    is_suspend;
 	struct hrtimer		multi_tap_timer;
 	struct work_struct	multi_tap_work;
-	atomic_t    is_suspend;
 };
 
 /* extern function */

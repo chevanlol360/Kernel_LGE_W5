@@ -90,11 +90,7 @@
 #ifndef CONFIG_MACH_MSM8X10_W5_AIO_US
 #ifndef CONFIG_MACH_MSM8926_X3_TRF_US
 #ifndef CONFIG_MACH_MSM8X10_W3C_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5C_TRF_US
 #include "f_ecm.c"
-#endif
-#endif
 #endif
 #endif
 #endif
@@ -282,10 +278,6 @@ static char serial_string[256];
 #define CHARGE_ONLY_STRING_IDX  3
 static char charge_only_string[256];
 #endif
-#ifdef CONFIG_USB_G_LGE_SERIALNO_REDIRECTION
-#define STRING_SERIAL_REDI_IDX      4
-static char serial_string_redi[256];
-#endif
 
 /* String Table */
 static struct usb_string strings_dev[] = {
@@ -294,9 +286,6 @@ static struct usb_string strings_dev[] = {
 	[STRING_SERIAL_IDX].s = serial_string,
 #ifdef CONFIG_USB_G_LGE_ANDROID
     [CHARGE_ONLY_STRING_IDX].s = charge_only_string,
-#endif
-#ifdef CONFIG_USB_G_LGE_SERIALNO_REDIRECTION
-    [STRING_SERIAL_REDI_IDX].s = serial_string_redi,
 #endif
 	{  }			/* end of list */
 };
@@ -1065,8 +1054,6 @@ static struct android_usb_function ncm_function = {
 #ifndef CONFIG_MACH_MSM8X10_W5_AIO_US
 #ifndef CONFIG_MACH_MSM8926_X3_TRF_US
 #ifndef CONFIG_MACH_MSM8X10_W3C_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5C_TRF_US
 /* ecm transport string */
 static char ecm_transports[MAX_XPORT_STR_LEN];
 
@@ -1186,8 +1173,6 @@ static struct android_usb_function ecm_qc_function = {
 	.unbind_config	= ecm_qc_function_unbind_config,
 	.attributes	= ecm_function_attributes,
 };
-#endif
-#endif
 #endif
 #endif
 #endif
@@ -1860,8 +1845,6 @@ static struct android_usb_function rndis_qc_function = {
 #ifndef CONFIG_MACH_MSM8X10_W5_AIO_US
 #ifndef CONFIG_MACH_MSM8926_X3_TRF_US
 #ifndef CONFIG_MACH_MSM8X10_W3C_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5C_TRF_US
 static int ecm_function_bind_config(struct android_usb_function *f,
 					struct usb_configuration *c)
 {
@@ -1924,8 +1907,6 @@ static struct android_usb_function ecm_function = {
 	.unbind_config	= ecm_function_unbind_config,
 	.attributes	= ecm_function_attributes,
 };
-#endif
-#endif
 #endif
 #endif
 #endif
@@ -2335,11 +2316,7 @@ static struct android_usb_function *supported_functions[] = {
 #ifndef CONFIG_MACH_MSM8X10_W5_AIO_US
 #ifndef CONFIG_MACH_MSM8926_X3_TRF_US
 #ifndef CONFIG_MACH_MSM8X10_W3C_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5C_TRF_US
 	&ecm_qc_function,
-#endif
-#endif
 #endif
 #endif
 #endif
@@ -2367,11 +2344,7 @@ static struct android_usb_function *supported_functions[] = {
 #ifndef CONFIG_MACH_MSM8X10_W5_AIO_US
 #ifndef CONFIG_MACH_MSM8926_X3_TRF_US
 #ifndef CONFIG_MACH_MSM8X10_W3C_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5_TRF_US
-#ifndef CONFIG_MACH_MSM8X10_W5C_TRF_US
 	&ecm_function,
-#endif
-#endif
 #endif
 #endif
 #endif
@@ -2959,9 +2932,6 @@ DESCRIPTOR_ATTR(bDeviceProtocol, "%d\n")
 DESCRIPTOR_STRING_ATTR(iManufacturer, manufacturer_string)
 DESCRIPTOR_STRING_ATTR(iProduct, product_string)
 DESCRIPTOR_STRING_ATTR(iSerial, serial_string)
-#ifdef CONFIG_USB_G_LGE_SERIALNO_REDIRECTION
-DESCRIPTOR_STRING_ATTR(iSerial_redi, serial_string_redi)
-#endif
 
 static DEVICE_ATTR(functions, S_IRUGO | S_IWUSR, functions_show,
 						 functions_store);
@@ -2985,9 +2955,6 @@ static struct device_attribute *android_usb_attributes[] = {
 	&dev_attr_iManufacturer,
 	&dev_attr_iProduct,
 	&dev_attr_iSerial,
-#ifdef CONFIG_USB_G_LGE_SERIALNO_REDIRECTION
-	&dev_attr_iSerial_redi,
-#endif
 	&dev_attr_functions,
 	&dev_attr_enable,
 	&dev_attr_pm_qos,

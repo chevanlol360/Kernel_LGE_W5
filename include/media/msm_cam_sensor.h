@@ -360,6 +360,7 @@ struct msm_sensor_init_params {
 	enum camb_position_t position;
 	/* sensor mount angle */
 	uint32_t            sensor_mount_angle;
+	int 				maker_gpio;/*                                                                                 */
 };
 
 struct sensorb_cfg_data {
@@ -452,7 +453,6 @@ enum msm_sensor_cfg_type_t {
 	CFG_SET_AEC_ROI,
 	CFG_SET_AWB_LOCK,
 	CFG_SET_AEC_LOCK,
-	CFG_SET_INIT_SETTING_VT,
 /*                                                                              */
 };
 

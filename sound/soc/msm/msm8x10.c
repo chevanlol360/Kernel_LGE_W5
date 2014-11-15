@@ -99,7 +99,14 @@ static struct wcd9xxx_mbhc_config mbhc_cfg = {
 	.insert_detect = true,
 	.swap_gnd_mic = NULL,
 	.use_int_rbias = false,
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6
+	.micbias_enable_flags = 1 << MBHC_MICBIAS_ENABLE_THRESHOLD_HEADSET |
+				1 << MBHC_MICBIAS_ENABLE_REGULAR_HEADSET,
+#else // original				
 	.micbias_enable_flags = 1 << MBHC_MICBIAS_ENABLE_THRESHOLD_HEADSET,
+#endif
+//                                                                                                                       
 	.cs_enable_flags = (1 << MBHC_CS_ENABLE_POLLING |
 			    1 << MBHC_CS_ENABLE_INSERTION |
 			    1 << MBHC_CS_ENABLE_REMOVAL),
@@ -628,6 +635,25 @@ static void *def_msm8x10_wcd_mbhc_cal(void)
 	btn_low[7] = 245;
 	btn_high[7] = 330;
 #else	/*                                */
+
+#ifdef CONFIG_MACH_MSM8X10_W6	
+	btn_low[0] = -50;
+	btn_high[0] = 175;	/* Hook Key */
+	btn_low[1] = 176;
+	btn_high[1] = 200;
+	btn_low[2] = 201;
+	btn_high[2] = 380;	/* Volume Up */
+	btn_low[3] = 381;
+	btn_high[3] = 385;
+	btn_low[4] = 386;
+	btn_high[4] = 390;
+	btn_low[5] = 391;
+	btn_high[5] = 395;
+	btn_low[6] = 396;
+	btn_high[6] = 400;
+	btn_low[7] = 401;
+	btn_high[7] = 660;  /* Volume Down */
+#else // lge original
 	btn_low[0] = -50;
 	btn_high[0] = 150;	/* Hook Key */
 	btn_low[1] = 151;
@@ -644,6 +670,8 @@ static void *def_msm8x10_wcd_mbhc_cal(void)
 	btn_high[6] = 400;
 	btn_low[7] = 401;
 	btn_high[7] = 660;  /* Volume Down */
+#endif
+
 #endif
 	n_ready = wcd9xxx_mbhc_cal_btn_det_mp(btn_cfg, MBHC_BTN_DET_N_READY);
 	n_ready[0] = 80;

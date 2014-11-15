@@ -180,14 +180,17 @@ struct msm8x10_wcd_priv {
 	struct wcd9xxx_resmgr resmgr;
 	/* mbhc module */
 	struct wcd9xxx_mbhc mbhc;
-
 	struct wcd9xxx_mbhc_config *mbhc_cfg;
-
 	/*
 	 * list used to save/restore registers at start and
 	 * end of impedance measurement
 	 */
 	struct list_head reg_save_restore;
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6
+	u32 micb_en_count;
+#endif
+//                                                                                                                       
 };
 
 static unsigned short rx_digital_gain_reg[] = {
@@ -1821,6 +1824,13 @@ static int msm8x10_wcd_codec_enable_micbias(struct snd_soc_dapm_widget *w,
 		snd_soc_update_bits(codec, micb_int_reg, 0x04, 0x04);
 		snd_soc_update_bits(codec, WCD9XXX_A_MICB_1_CTL,
 					0x80, 0x80);
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6
+		msm8x10_wcd->micb_en_count++;
+		pr_debug("%s micb_en_count : %d", __func__,
+			msm8x10_wcd->micb_en_count);
+#endif
+//                                                                                                                            
 		break;
 	case SND_SOC_DAPM_POST_PMU:
 		usleep_range(20000, 20100);
@@ -1828,6 +1838,14 @@ static int msm8x10_wcd_codec_enable_micbias(struct snd_soc_dapm_widget *w,
 		wcd9xxx_resmgr_notifier_call(&msm8x10_wcd->resmgr, e_post_on);
 		break;
 	case SND_SOC_DAPM_POST_PMD:
+//                                                                                                                          
+#ifdef CONFIG_MACH_MSM8X10_W6
+		if (msm8x10_wcd->micb_en_count > 0)
+			msm8x10_wcd->micb_en_count--;
+			pr_debug("%s micb_en_count : %d", __func__,
+				msm8x10_wcd->micb_en_count);
+#endif
+//                                                                                                                       
 		snd_soc_update_bits(codec, WCD9XXX_A_MICB_1_CTL,
 					0x80, 0x00);
 		/* Let MBHC module know so micbias switch to be off */
@@ -2443,7 +2461,11 @@ int msm8x10_digital_mute(struct snd_soc_dai *dai, int mute)
 	}
 
 	mute = (mute) ? 1 : 0;
+#ifdef CONFIG_MACH_MSM8X10_W6
+	usleep_range(80000, 80000);
+#else
 	usleep_range(20000, 20000);
+#endif
 	for (i = 0; i < NUM_DECIMATORS ; i++) {
 		tx_vol_ctl_reg = MSM8X10_WCD_A_CDC_TX1_VOL_CTL_CFG + (0x20 * i);
 		/* Set TX digital mute /unmute */
@@ -2953,13 +2975,26 @@ static int msm8x10_wcd_enable_mbhc_micbias(struct snd_soc_codec *codec,
 	 bool enable)
 {
 	int rc;
-
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6	
+	struct msm8x10_wcd_priv *msm8x10_wcd = snd_soc_codec_get_drvdata(codec);
+#endif
+//                                                                                                                       
 	if (enable)
 		rc = snd_soc_dapm_force_enable_pin(&codec->dapm,
 			"DAPM_MICBIAS_EXTERNAL_STANDALONE");
 	else {
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6
+		if (msm8x10_wcd->micb_en_count > 1) {
+			msm8x10_wcd->micb_en_count--;
+			pr_debug("%s micb_en_count : %d", __func__,
+				msm8x10_wcd->micb_en_count);
+#else
 		if (is_TX_up == true) {
 			pr_info("%s: TX path is going on\n", __func__);
+#endif
+//                                                                                                                       
 			return 0;
 		}
 		rc = snd_soc_dapm_disable_pin(&codec->dapm,
@@ -3503,7 +3538,11 @@ static int msm8x10_wcd_codec_probe(struct snd_soc_codec *codec)
 				codec->control_data,
 				on_demand_supply_name[ON_DEMAND_MICBIAS]);
 	atomic_set(&msm8x10_wcd_priv->on_demand_list[ON_DEMAND_MICBIAS].ref, 0);
-
+//                                                                                                                         
+#ifdef CONFIG_MACH_MSM8X10_W6
+	msm8x10_wcd_priv->micb_en_count = 0;
+#endif	
+//                                                                                                                       
 #if defined(CONFIG_MACH_LGE) && defined(CONFIG_SWITCH_MAX1462X)
 if( maxim_enabled )
 	goto skip;

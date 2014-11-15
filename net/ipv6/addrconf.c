@@ -93,8 +93,8 @@
 
 /* Set to 3 to get tracing... */
 //                                                                                                        
-#define ACONF_DEBUG 2 // The original value.
-//#define ACONF_DEBUG 3 // To debug...
+//#define ACONF_DEBUG 2 // The original value.
+#define ACONF_DEBUG 3 // To debug...
 //                                                                                                        
 
 #if ACONF_DEBUG >= 3
@@ -1861,7 +1861,7 @@ void addrconf_prefix_rcv(struct net_device *dev, u8 *opt, int len, bool sllao)
 
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-	ADBG((KERN_DEBUG "[LGE_DATA][%s()] The prefix is received now !", __func__));
+	printk(KERN_DEBUG "[LGE_DATA][%s()] The prefix is received now !", __func__);
 #endif
 //                                                                                                        
 
@@ -2943,7 +2943,7 @@ static void addrconf_rs_timer(unsigned long data)
 //                                                                                                        
 	if (idev->if_flags & IF_RA_RCVD){
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()] The RA msg had been received!", __func__));
+printk(KERN_DEBUG "[LGE_DATA][%s()] The RA msg had been received!", __func__);
 #endif
 		goto out;
     }
@@ -2958,7 +2958,7 @@ static void addrconf_rs_timer(unsigned long data)
 		spin_unlock(&ifp->lock);
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()][stage 2] rs is sent now!", __func__));
+        printk(KERN_DEBUG "[LGE_DATA][%s()][stage 2] rs is sent now!", __func__);
 #endif
 //                                                                                                        
 		ndisc_send_rs(idev->dev, &ifp->addr, &in6addr_linklocal_allrouters);
@@ -2993,7 +2993,7 @@ static void addrconf_dad_kick(struct inet6_ifaddr *ifp)
 	ifp->probes = idev->cnf.dad_transmits;
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()] dad_transmits == %d, ramd_num == %lu", __func__, idev->cnf.dad_transmits, rand_num));
+    printk(KERN_DEBUG "[LGE_DATA][%s()] dad_transmits == %d, ramd_num == %lu", __func__, idev->cnf.dad_transmits, rand_num);
 #endif
 //                                                                                                        
 	addrconf_mod_timer(ifp, AC_DAD, rand_num);
@@ -3011,12 +3011,12 @@ static void addrconf_dad_start(struct inet6_ifaddr *ifp, u32 flags)
     char CurrentInterfaceName[6]={0};//initializing
     ipv6AddrType = ipv6_addr_type(&ifp->addr);
 
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()] dad_start! dev_name == %s", __func__, dev->name));
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()] ipv6_addr_type == %d", __func__, ipv6AddrType));
+    printk(KERN_DEBUG "[LGE_DATA][%s()] dad_start! dev_name == %s", __func__, dev->name);
+    printk(KERN_DEBUG "[LGE_DATA][%s()] ipv6_addr_type == %d", __func__, ipv6AddrType);
 
     strncpy(CurrentInterfaceName,dev->name,5);
     if(CurrentInterfaceName == NULL){
-        ADBG((KERN_DEBUG "[LGE_DATA] CurrentInterfaceName is NULL !\n"));
+        printk(KERN_DEBUG "[LGE_DATA] CurrentInterfaceName is NULL !\n");
         return;
     }
 #endif
@@ -3052,7 +3052,7 @@ static void addrconf_dad_start(struct inet6_ifaddr *ifp, u32 flags)
 		read_unlock_bh(&idev->lock);
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()] ipv6_addr_type == %d, Because the IPv6 type is Global Scope, we will immediately finish the DAD process for Global Scope.", __func__, ipv6AddrType));
+        printk(KERN_DEBUG "[LGE_DATA][%s()] ipv6_addr_type == %d, Because the IPv6 type is Global Scope, we will immediately finish the DAD process for Global Scope.", __func__, ipv6AddrType);
 #endif
 //                                                                                                        
 		addrconf_dad_completed(ifp);
@@ -3119,7 +3119,7 @@ static void addrconf_dad_timer(unsigned long data)
 		 */
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()] DAD was successful!", __func__));
+        printk(KERN_DEBUG "[LGE_DATA][%s()] DAD was successful!", __func__);
 #endif
 //                                                                                                        
 		ifp->flags &= ~(IFA_F_TENTATIVE|IFA_F_OPTIMISTIC|IFA_F_DADFAILED);
@@ -3134,22 +3134,22 @@ static void addrconf_dad_timer(unsigned long data)
 	ifp->probes--;
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()], ifp->idev->nd_parms->retrans_time == %d", __func__, ifp->idev->nd_parms->retrans_time));
-	ADBG((KERN_DEBUG "[LGE_DATA][%s()] dev_name == %s", __func__, dev->name));
+    printk(KERN_DEBUG "[LGE_DATA][%s()], ifp->idev->nd_parms->retrans_time == %d", __func__, ifp->idev->nd_parms->retrans_time);
+	printk(KERN_DEBUG "[LGE_DATA][%s()] dev_name == %s", __func__, dev->name);
 
     strncpy(CurrentInterfaceName,dev->name,5);
     if(CurrentInterfaceName == NULL){
         spin_unlock(&ifp->lock);
         read_unlock(&idev->lock);
-        ADBG(KERN_DEBUG "[LGE_DATA] CurrentInterfaceName is NULL !\n");
+        printk(KERN_DEBUG "[LGE_DATA] CurrentInterfaceName is NULL !\n");
 		goto out;
     }
 
-	ADBG((KERN_DEBUG "[LGE_DATA][%s()] CopyInterfaceName == %s, CurrentInterfaceName == %s", __func__, InterfaceNameToApply, CurrentInterfaceName));
+	printk(KERN_DEBUG "[LGE_DATA][%s()] CopyInterfaceName == %s, CurrentInterfaceName == %s", __func__, InterfaceNameToApply, CurrentInterfaceName);
 
     if(strcmp(InterfaceNameToApply, CurrentInterfaceName) == 0){//In case of rmnet, this patch will be applied bacause We should not impact to the Wi-Fi and so on.
 	    addrconf_mod_timer(ifp, AC_DAD, LGE_DATA_WAITING_TIME_FOR_DAD_OF_LGU);
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()] The waiting time for link-local DAD is set as [%d] milli-seconds in case of only rmnet interface !", __func__, LGE_DATA_WAITING_TIME_FOR_DAD_OF_LGU*10));
+        printk(KERN_DEBUG "[LGE_DATA][%s()] The waiting time for link-local DAD is set as [%d] milli-seconds in case of only rmnet interface !", __func__, LGE_DATA_WAITING_TIME_FOR_DAD_OF_LGU*10);
     }else{
 //kernel original code -- START
         addrconf_mod_timer(ifp, AC_DAD, ifp->idev->nd_parms->retrans_time);
@@ -3165,7 +3165,7 @@ static void addrconf_dad_timer(unsigned long data)
 	/* send a neighbour solicitation for our addr */
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()] send a neighbour solicitation for our addr !", __func__));
+    printk(KERN_DEBUG "[LGE_DATA][%s()] send a neighbour solicitation for our addr !", __func__);
 #endif
 //                                                                                                        
 	addrconf_addr_solict_mult(&ifp->addr, &mcaddr);
@@ -3185,7 +3185,7 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp)
 	ipv6_ifa_notify(RTM_NEWADDR, ifp);
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-    ADBG((KERN_DEBUG "[LGE_DATA][%s()] dad_is_completed!", __func__));
+    printk(KERN_DEBUG "[LGE_DATA][%s()] dad_is_completed!", __func__);
 #endif
 //                                                                                                        
 	/* If added prefix is link local and we are prepared to process
@@ -3204,7 +3204,7 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp)
 		 */
 //                                                                                                        
 #ifdef CONFIG_LGP_DATA_TCPIP_SLAAC_IPV6_ALLOCATION_BOOSTER
-        ADBG((KERN_DEBUG "[LGE_DATA][%s()][stage 1] rs is sent now!", __func__));
+        printk(KERN_DEBUG "[LGE_DATA][%s()][stage 1] rs is sent now!", __func__);
 #endif
 //                                                                                                        
 		ndisc_send_rs(ifp->idev->dev, &ifp->addr, &in6addr_linklocal_allrouters);

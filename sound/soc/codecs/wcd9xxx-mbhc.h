@@ -355,6 +355,8 @@ struct wcd9xxx_mbhc {
 	struct dentry *debugfs_poke;
 	struct dentry *debugfs_mbhc;
 #endif
+	/* QCT case 01448950 polling noise fix [2014/02/28] */
+	struct mutex mbhc_lock;
 };
 
 #define WCD9XXX_MBHC_CAL_SIZE(buttons, rload) ( \

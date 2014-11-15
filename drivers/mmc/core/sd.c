@@ -1234,7 +1234,7 @@ static void mmc_sd_detect(struct mmc_host *host)
 		break;
 	}
 	if (!retries) {
-#if defined(CONFIG_MACH_MSM8X10_W3DS_OPEN_SCA) || defined(CONFIG_MACH_MSM8X10_W3_GLOBAL_SCA) || defined(CONFIG_LGE_REINIT_SDCARD_FOR_DETECT_FAIL) || defined(CONFIG_MACH_MSM8X10_W5DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W5_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W55DS_GLOBAL_COM) || defined(CONFIG_MACH_MSM8X10_W55_GLOBAL_COM)
+#if defined(CONFIG_MACH_MSM8X10_W3DS_OPEN_SCA) || defined(CONFIG_LGE_REINIT_SDCARD_FOR_DETECT_FAIL) || defined(CONFIG_MACH_MSM8X10_W3_GLOBAL_SCA)
 	// Try re-init the card when card detection is failed.
         pr_warning("%s(%s): Unable to re-detect card (%d)\n", __func__, mmc_hostname(host), err); 
         mmc_power_off(host); 

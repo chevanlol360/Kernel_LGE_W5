@@ -720,14 +720,21 @@ static int mtv222_isr_thread(void *data)
 
 	while (!kthread_should_stop()) {
 		wait_event_interruptible(mtv222_cb->isr_wq,
-			kthread_should_stop() || atomic_read(&mtv222_cb->isr_cnt));
+			kthread_should_stop() || (atomic_read(&mtv222_cb->isr_cnt) > 0));
+
+		atomic_dec(&mtv222_cb->isr_cnt);
+
+		if(atomic_read(&mtv222_cb->isr_cnt) < 0)
+		{
+			MTVMSG("atomic_read(&mtv222_cb->isr_cnt) = (%d)\n", atomic_read(&mtv222_cb->isr_cnt));
+			atomic_set(&mtv222_cb->isr_cnt, 0);
+		}
 
 		if (kthread_should_stop())
 			break;
 
 		mtv222_spi_isr_handler(mtv222_cb);
 
-		atomic_dec(&mtv222_cb->isr_cnt);
 	}
 
 	MTVMSG("Exit.\n");
@@ -832,7 +839,7 @@ static int broadcast_spi_probe(struct spi_device *spi)
 
 	spi->mode 			= SPI_MODE_0;
 	spi->bits_per_word	= 8;
-//	spi->max_speed_hz 	= (10800*1000);
+	spi->max_speed_hz 	= (10800*1000);
 
 	MTVMSG("Entered...\n");
 

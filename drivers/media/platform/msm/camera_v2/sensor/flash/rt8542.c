@@ -44,7 +44,7 @@
 
 /*                                                                          */
 #define POWER_OFF		0x00
-#define POWER_ON_TEST	0xFF
+#define BOTH_ON			0xFF
 #define BL_ON			0xF0
 #define FLASH_ON		0x0F
 /*                                                                          */
@@ -246,7 +246,7 @@ static void rt8542_set_main_current_level_no_mapping(
 
 void rt8542_backlight_on(int level)
 {
-	if (backlight_status != BL_ON){/*                                                                        */
+	if ((backlight_status != BL_ON) && (backlight_status != BOTH_ON)){/*                                                                        */
 			
 		rt8542_hw_reset();
 		rt8542_write_reg(main_rt8542_dev->client, 0x05, 0x04);

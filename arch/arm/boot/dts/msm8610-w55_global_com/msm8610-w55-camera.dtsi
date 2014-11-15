@@ -270,6 +270,7 @@
 		qcom,csid-sd-index = <1>;
 		qcom,mount-angle = <270>;
 		qcom,sensor-name = "hi707";
+		qcom,maker-gpio = <86>;
 
 		cam_vdig-supply = <&pm8110_l7>;             /* Dummy VDIG Setting, We never use this LDO7 for DIG, youngwook.song@lge.com, 2013.08.26 */
 		cam_vio-supply = <&pm8110_l7>;

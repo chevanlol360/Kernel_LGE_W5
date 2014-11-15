@@ -25,7 +25,7 @@
 #include "RefCode_PDTScan.h"
 
 #ifdef _F54_TEST_
-unsigned char F54_HighResistance(void)
+unsigned char F54_HighResistance(int mfts_enable)
 {
 	unsigned char imageBuffer[6];
 	short resistance[3];
@@ -34,9 +34,15 @@ unsigned char F54_HighResistance(void)
 	int read_count = 0;
 
 #ifdef F54_Porting
-	int resistanceLimit[3][2] = { {-1000, 450}, {-1000, 450}, {-400, 20} };	//base value * 1000
+	int resistanceLimit[3][2] ;//= { {-1000, 450}, {-1000, 450}, {-400, 20} };	//base value * 1000
+	int resistanceLimit_target[3][2] = { {-1000, 450}, {-1000, 450}, {-400, 20} };
+	int resistanceLimit_jig[3][2] = { {-1000, 450}, {-1000, 450}, {-500, 20} };
 	char buf[512] = {0};
 	int ret = 0;
+	if(mfts_enable)
+		memcpy(resistanceLimit, resistanceLimit_jig, sizeof(resistanceLimit));
+	else
+		memcpy(resistanceLimit, resistanceLimit_target, sizeof(resistanceLimit));
 #else
 	float resistanceLimit[3][2] = {-1, 0.45, -1, 0.45, -0.4, 0.02};
 #endif

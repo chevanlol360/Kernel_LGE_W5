@@ -300,6 +300,7 @@ struct lge_touch_data
 	struct delayed_work			work_gesture_wakeup;
 	struct mutex				irq_work_mutex;
 	bool sd_status;
+	bool mfts_enable;
 };
 
 

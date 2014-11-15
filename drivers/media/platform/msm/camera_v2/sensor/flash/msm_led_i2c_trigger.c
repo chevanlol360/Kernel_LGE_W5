@@ -420,8 +420,13 @@ int msm_flash_led_high(struct msm_led_flash_ctrl_t *fctrl)
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 	}
 	if (fctrl->flash_i2c_client) {
+#if defined(CONFIG_MACH_MSM8X10_W6)
+		/* Configuration of current, torch : 56.25mA, strobe : 431.25mA */
+		rc =flash_write_reg(fctrl->flash_i2c_client,	0x06, 0x18);
+#else
 		/* Configuration of current, torch : 56.25mA, strobe : 384.375mA */
 		rc =flash_write_reg(fctrl->flash_i2c_client,	0x06, 0x17);
+#endif
 		if (rc < 0)
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 	}

@@ -794,6 +794,32 @@ static struct msm_gpiomux_config msm_nfc_configs_rev_c[] __initdata = {
 };
 #endif
 /*                                                       */
+/*                                                                 */
+#ifdef CONFIG_MACH_LGE
+static struct gpiomux_setting main_cam_id_gpio_act_config = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_UP,
+	.dir = GPIOMUX_IN
+};
+static struct gpiomux_setting main_cam_id_gpio_sus_config = {
+	.func = GPIOMUX_FUNC_GPIO,
+	.drv = GPIOMUX_DRV_2MA,
+	.pull = GPIOMUX_PULL_NONE,
+	.dir = GPIOMUX_IN
+};
+
+static struct msm_gpiomux_config main_cam_id_gpio[] __initdata = {
+	{
+		.gpio = 86,
+		.settings = {
+			[GPIOMUX_ACTIVE] = &main_cam_id_gpio_act_config,
+			[GPIOMUX_SUSPENDED] = &main_cam_id_gpio_sus_config,
+		}
+	}
+};
+#endif /*                 */
+/*                                                                 */
 void __init msm8610_init_gpiomux(void)
 {
 	int rc;
@@ -843,6 +869,7 @@ void __init msm8610_init_gpiomux(void)
 	}
 	else {
 		msm_gpiomux_install(msm_sensor_configs_rev_b, ARRAY_SIZE(msm_sensor_configs_rev_b));
+		msm_gpiomux_install(main_cam_id_gpio, ARRAY_SIZE(main_cam_id_gpio));	/* MAIN_CAM_ID */
 		printk(KERN_ERR " [Camera] In greater than HW_REV_B, MAIN_CAM0_RESET_N has been changed from GPIO_98 to GPIO_114\n");
 	}
 /*                                                                                  */

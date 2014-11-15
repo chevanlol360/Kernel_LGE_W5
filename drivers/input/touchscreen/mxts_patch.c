@@ -8,9 +8,6 @@
 #define MXT_PATCH_LOCK_CHECK		1
 #define MXT_PATCH_SUPP_CHECK		1
 #define MXT_PATCH_T9STATUS_CHK		1
-#define MXT_PATCH_STAGE_RESET		1
-#define MXT_PATCH_TOUCH_SLOT		1
-#define MXT_PATCH_540S_AREA			1
 
 #define TIME_WRAP_AROUND(x, y)		(((y)>(x)) ? (y)-(x) : (0-(x))+(y))
 
@@ -49,13 +46,6 @@
 #ifdef MXT_PATCH_T9STATUS_CHK
 #define MXT_XML_SRC_T9STATUS	"T9STATUS"	//10
 #endif
-#if MXT_PATCH_TOUCH_SLOT
-#define MXT_XML_SRC_SCNT		"SCNT"		//11
-#define MXT_XML_SRC_LCNT		"LCNT"		//12 //20131227
-#endif
-#if MXT_PATCH_540S_AREA
-#define MXT_XML_SRC_AREA2		"AR2"		//13
-#endif
 
 #define MXT_XML_ACT_NONE		"0"			//0
 #define MXT_XML_ACT_CAL			"CAL"		//1
@@ -70,13 +60,11 @@
 #define MXT_T100_DETECT_MSG_MASK  7
 
 /* Tool types of T100 object */
-#define MXT_T100_TYPE_RESERVED				0
-#define MXT_T100_TYPE_PATCH_FINGER			1
-#define MXT_T100_TYPE_PASSIVE_STYLUS		2
-#define MXT_T100_TYPE_ACTIVE_STYLUS			3
-#define MXT_T100_TYPE_HOVERING_FINGER		4
-#define MXT_T100_TYPE_GLOVE_TOUCH			5
-#define MXT_T100_TYPE_LARGE_TOUCH			6 //20131227
+#define MXT_T100_TYPE_RESERVED                                0
+#define MXT_T100_TYPE_PATCH_FINGER                          1
+#define MXT_T100_TYPE_PASSIVE_STYLUS        2
+#define MXT_T100_TYPE_ACTIVE_STYLUS                      3
+#define MXT_T100_TYPE_HOVERING_FINGER    4
 
 enum{
 	MXT_PATCH_CON_NONE = 0,
@@ -105,13 +93,6 @@ enum {
 	MXT_PATCH_ITEM_KVAL,		//9
 #ifdef MXT_PATCH_T9STATUS_CHK
 	MXT_PATCH_ITEM_T9STATUS,	//10
-#endif
-#if MXT_PATCH_TOUCH_SLOT
-	MXT_PATCH_ITEM_SCNT,		//11
-	MXT_PATCH_ITEM_LCNT,		//12 //20131227
-#endif
-#if MXT_PATCH_540S_AREA
-	MXT_PATCH_ITEM_AREA2,		//13
 #endif
 	//...
 	MXT_PATCH_ITEM_END
@@ -146,9 +127,7 @@ struct stage_def{	// 8b
 	u16 stage_period;
 	u8	cfg_cnt;
 	u8	test_cnt;
-#if MXT_PATCH_STAGE_RESET
-	u16	reset_period;
-#endif
+	u8	reserved[2];
 };
 
 struct stage_cfg{	// 4b
@@ -235,14 +214,6 @@ struct event_cfg{	// 4b
 /*
 	Source
 */
-#if MXT_PATCH_TOUCH_SLOT
-struct touch_slot{
-	u8 detect[MXT_MAX_NUM_TOUCHES];
-	u8 type[MXT_MAX_NUM_TOUCHES];
-	u8 event[MXT_MAX_NUM_TOUCHES];
-};
-struct touch_slot tch_slot;
-#endif
 
 struct test_src{
 	int charger;
@@ -256,13 +227,6 @@ struct test_src{
 	int key_val;
 #ifdef MXT_PATCH_T9STATUS_CHK
 	int status;
-#endif
-#if MXT_PATCH_TOUCH_SLOT
-	int stylus_cnt;
-	int large_cnt; //20131227
-#endif
-#if MXT_PATCH_540S_AREA
-	int area2;
 #endif
 };
 
@@ -292,14 +256,12 @@ extern struct mxt_object *mxt_get_object(struct mxt_data *data, u8 type);
 
 #ifndef __mxt_patch_debug
 #define __mxt_patch_debug(_data, ...)	if(data->patch.debug) \
-	TOUCH_PATCH_MSG(__VA_ARGS__);
-/*	dev_dbg(&(_data)->client->dev, __VA_ARGS__);*/
+	dev_info(&(_data)->client->dev, __VA_ARGS__);
 #endif
 
 #ifndef __mxt_patch_ddebug
 #define __mxt_patch_ddebug(_data, ...)	if(data->patch.debug>1) \
-	TOUCH_PATCH_MSG(__VA_ARGS__);
-/*	dev_info(&(_data)->client->dev, __VA_ARGS__);*/
+	dev_info(&(_data)->client->dev, __VA_ARGS__);
 #endif
 #define mxt_abs(x)		(x > 0 ? x : -x)
 
@@ -428,8 +390,8 @@ static int mxt_patch_write_event_cfg(struct mxt_data *data,
 		struct event_cfg* pecfg, bool do_action)
 {
 	if(do_action){
-		/*__mxt_patch_debug(data, "|-- ECFG_WRITE: OBJECT_TYPE:%d OFFSET:%d VAL:%d\n",
-			pecfg->obj_type, pecfg->offset, pecfg->val);*/
+		__mxt_patch_debug(data, "|-- ECFG_WRITE: OBJECT_TYPE:%d OFFSET:%d VAL:%d\n",
+			pecfg->obj_type, pecfg->offset, pecfg->val);
 		mxt_write_object(data, pecfg->obj_type,
 			pecfg->offset, pecfg->val);
 	}
@@ -732,13 +694,6 @@ const char* mxt_patch_src_item_name(u8 src_id)
 #ifdef MXT_PATCH_T9STATUS_CHK
 		MXT_XML_SRC_T9STATUS,   //MXT_PATCH_ITEM_T9STATUS   10
 #endif
-#if MXT_PATCH_TOUCH_SLOT
-		MXT_XML_SRC_SCNT,	//MXT_PATCH_ITEM_SCNT		11
-		MXT_XML_SRC_LCNT,	//MXT_PATCH_ITEM_LCNT		12 //20131227
-#endif
-#if MXT_PATCH_540S_AREA
-		MXT_XML_SRC_AREA2,	//MXT_PATCH_ITEM_AREA2		13
-#endif
 	};
 	if(MXT_PATCH_ITEM_NONE <= src_id &&
 		src_id < MXT_PATCH_ITEM_END){
@@ -879,35 +834,19 @@ static int mxt_patch_stage_timer(struct mxt_data *data,
 static void mxt_patch_dump_source(struct mxt_data *data,
 				bool do_action)
 {
-	struct device *dev = &data->client->dev;
 	if(do_action){
-		dev_info(dev, "TA:%d FC:%d AR:%d AP:%d"
-			" SM:%d TC:%d AT:%d KC:%d KV:%d EV:%d SC:%d LC:%d AR2:%d\n",
+		__mxt_patch_debug(data, "TA:%d FCNT:%d AREA:%d AMP:%d SUM:%d TCH:%d ATCH:%d KCNT:%d KVAL:%d\n",
 			data->patch.src_item[1], data->patch.src_item[2],
 			data->patch.src_item[3], data->patch.src_item[4],
 			data->patch.src_item[5], data->patch.src_item[6],
 			data->patch.src_item[7], data->patch.src_item[8],
-			data->patch.src_item[9], data->patch.src_item[10],
-			data->patch.src_item[11],data->patch.src_item[12],
-			data->patch.src_item[13]);	//20131227
-#if 0
-		__mxt_patch_debug(data, "TA:%d FC:%d AR:%d AP:%d"
-			" SM:%d TC:%d AT:%d KC:%d KV:%d EV:%d SC:%d LC:%d AR2:%d\n",
-			data->patch.src_item[1], data->patch.src_item[2],
-			data->patch.src_item[3], data->patch.src_item[4],
-			data->patch.src_item[5], data->patch.src_item[6],
-			data->patch.src_item[7], data->patch.src_item[8],
-			data->patch.src_item[9], data->patch.src_item[10],
-			data->patch.src_item[11],data->patch.src_item[12],
-			data->patch.src_item[13]);	//20131227
-#endif
+			data->patch.src_item[9]);
 	}
 }
 
 static int mxt_patch_parse_test_line(struct mxt_data *data,
 		u8* ppatch, u16* psrc_item, u16* check_cnt, bool do_action)
 {
-	struct device *dev = &data->client->dev;
 	struct test_line*	ptline;
 	struct test_item*	ptitem;
 	struct action_cfg*	pacfg;
@@ -939,12 +878,8 @@ static int mxt_patch_parse_test_line(struct mxt_data *data,
 					*check_cnt = *check_cnt+1;
 					if(*check_cnt == ptline->check_cnt){
 						test_action = true;
-						dev_info(dev, "STAGE:%d TEST %d MATCHED",
-							data->patch.cur_stage, ptline->test_id);
-#if 0
 						__mxt_patch_debug(data, "STAGE:%d TEST %d MATCHED",
 							data->patch.cur_stage, ptline->test_id);
-#endif
 						mxt_patch_dump_source(data, test_action);
 
 						if(ptline->option&0x01){
@@ -953,14 +888,6 @@ static int mxt_patch_parse_test_line(struct mxt_data *data,
 						}
 					}
 				}
-			}
-		}
-		else{
-			if(data->patch.option&0x04){
-			    if(do_action&&psrc_item){// Skip if any item was failed
-				    __mxt_patch_ddebug(data, "SKIP REMAINED ITEMS %d\n", i);
-				    return 0;
-			    }
 			}
 		}
 		ulpos += sizeof(struct test_item);
@@ -993,9 +920,9 @@ static int mxt_patch_parse_stage(struct mxt_data *data,
 
 	if(!do_action){
 		__mxt_patch_debug(data,
-			"STAGE_ID:%d OPT:%d PERIOD:%d CFG_CNT:%d TST_CNT:%d RESET:%d\n",
+			"STAGE_ID:%d OPT:%d PERIOD:%d CFG_CNT:%d TEST_CNT:%d\n",
 			psdef->stage_id, psdef->option, psdef->stage_period,
-			psdef->cfg_cnt, psdef->test_cnt, psdef->reset_period);//MXT_PATCH_STAGE_RESET
+			psdef->cfg_cnt, psdef->test_cnt);
 	}
 	mxt_patch_stage_timer(data, psdef->stage_period, do_action);
 	ulpos += sizeof(struct stage_def);
@@ -1282,11 +1209,6 @@ static int mxt_patch_run_stage(struct mxt_data *data)
 	data->patch.tline_cnt = tline_cnt;
 	data->patch.run_stage = 1;
 	data->patch.skip_test = 0;
-#if MXT_PATCH_STAGE_RESET
-	data->patch.stage_timestamp = jiffies_to_msecs(jiffies);
-	__mxt_patch_ddebug(data, "Stage[%d] %d\n",
-		cur_stage, data->patch.stage_timestamp);
-#endif
 
 	return 0;
 }
@@ -1297,11 +1219,6 @@ static int mxt_patch_test_source(struct mxt_data *data, u16* psrc_item)
 	u8* ppatch = data->patch.patch;
 	u16* pstage_addr = data->patch.stage_addr;
 	u8	cur_stage = data->patch.cur_stage;
-#if MXT_PATCH_STAGE_RESET
-	u32 curr_time = jiffies_to_msecs(jiffies);
-	u32 time_diff = TIME_WRAP_AROUND(data->patch.stage_timestamp, curr_time);
-	struct stage_def* psdef=NULL;
-#endif
 
 	if(!ppatch || !pstage_addr){
 		dev_err(&data->client->dev, "%s pstage_addr is null\n", __func__);
@@ -1323,21 +1240,6 @@ static int mxt_patch_test_source(struct mxt_data *data, u16* psrc_item)
 			mxt_patch_parse_test_line(data,
 				ppatch+pstage_addr[cur_stage]+ptline_addr[i],
 				psrc_item, &pcheck_cnt[i], true);
-
-#if MXT_PATCH_STAGE_RESET
-			psdef = (struct stage_def*)(ppatch+pstage_addr[cur_stage]);
-			if(psdef->reset_period){
-				if(time_diff > psdef->reset_period*10){
-					pcheck_cnt[i] = 0;
-					__mxt_patch_ddebug(data,
-						"RESET CNT STAGE:%d, TEST:%d RESET:%d DIF:%d\n",
-						cur_stage, i,
-						psdef->reset_period, time_diff);
-					data->patch.stage_timestamp = jiffies_to_msecs(jiffies);
-				}
-			}
-#endif
-
 			if(data->patch.skip_test){
 				__mxt_patch_debug(data, "REMAINED TEST SKIP\n");
 				return 0;
@@ -1346,13 +1248,6 @@ static int mxt_patch_test_source(struct mxt_data *data, u16* psrc_item)
 	}
 	return 0;
 }
-
-#if MXT_PATCH_TOUCH_SLOT
-static void mxt_patch_init_tslot(void)
-{
-	memset(&tch_slot, 0, sizeof(struct touch_slot));
-}
-#endif
 
 static void mxt_patch_init_tsrc(struct test_src* tsrc)
 {
@@ -1365,15 +1260,9 @@ static void mxt_patch_init_tsrc(struct test_src* tsrc)
 	tsrc->atch_ch=-1;
 	tsrc->key_cnt=-1;
 	tsrc->key_val=-1;
+	//tsrc->test_src=-1;
 #ifdef MXT_PATCH_T9STATUS_CHK
 	tsrc->status=-1;
-#endif
-#if MXT_PATCH_TOUCH_SLOT
-	tsrc->stylus_cnt=-1;
-	tsrc->large_cnt=-1; //20131227
-#endif
-#if MXT_PATCH_540S_AREA
-	tsrc->area2=-1;
 #endif
 }
 
@@ -1402,16 +1291,6 @@ static int mxt_patch_make_source(struct mxt_data *data,
 	if(tsrc->status >= 0)
 		data->patch.src_item[MXT_PATCH_ITEM_T9STATUS]= tsrc->status;
 #endif
-#if MXT_PATCH_TOUCH_SLOT
-	if(tsrc->stylus_cnt >= 0) //MXT_PATCH_TOUCH_SLOT
-		data->patch.src_item[MXT_PATCH_ITEM_SCNT]= tsrc->stylus_cnt;
-	if(tsrc->large_cnt >= 0) //20131227
-		data->patch.src_item[MXT_PATCH_ITEM_LCNT]= tsrc->large_cnt;
-#endif
-#if MXT_PATCH_540S_AREA
-	if(tsrc->area2 >= 0)
-		data->patch.src_item[MXT_PATCH_ITEM_AREA2]= tsrc->area2;
-#endif
 	//mxt_patch_dump_source(data, true);
 	return 0;
 }
@@ -1435,9 +1314,6 @@ static int mxt_patch_start_stage(struct mxt_data *data)
 #endif
 #ifdef MXT_PATCH_SUPP_CHECK
 		mxt_patch_init_supp(data, &tsupp_data);
-#endif
-#if MXT_PATCH_TOUCH_SLOT
-		mxt_patch_init_tslot();
 #endif
 		return 0;
 	}
@@ -1694,7 +1570,6 @@ static void mxt_patch_T100_object(struct mxt_data *data,
 	}
 
 	if(index >= MXT_T100_SCREEN_MESSAGE_NUM_RPT_ID){
-		u8 i=0, stylus_cnt=0, large_cnt=0;
 
 		/* Treate touch status messages */
 		id = index - MXT_T100_SCREEN_MESSAGE_NUM_RPT_ID;
@@ -1702,36 +1577,14 @@ static void mxt_patch_T100_object(struct mxt_data *data,
 		touch_type = (msg[0] & 0x70) >> 4;
 		touch_event = msg[0] & 0x0F;
 
-#if MXT_PATCH_TOUCH_SLOT
-		tch_slot.detect[id] = touch_detect;
-		tch_slot.type[id] = touch_type;
-		tch_slot.event[id] = touch_event;
-
-		for(i=0; i< MXT_MAX_NUM_TOUCHES; i++){
-			if(tch_slot.detect[i]){
-				if(tch_slot.type[i] == MXT_T100_TYPE_PASSIVE_STYLUS){
-					stylus_cnt++;
-				}
-				if(tch_slot.type[i] == MXT_T100_TYPE_LARGE_TOUCH){
-					large_cnt++; //20131227
-				}
-			}
-		}
-		tsrc.stylus_cnt = stylus_cnt;
-		tsrc.large_cnt = large_cnt; //20131227
-#endif
-
 		switch (touch_type)	{
 			case MXT_T100_TYPE_PATCH_FINGER:
 			case MXT_T100_TYPE_PASSIVE_STYLUS:
-			case MXT_T100_TYPE_GLOVE_TOUCH:
-			case MXT_T100_TYPE_LARGE_TOUCH: //20131227
 				x = msg[1] | (msg[2] << 8);
 				y = msg[3] | (msg[4] << 8);			
 
 				tsrc.amp = msg[5];
-				tsrc.area2 = msg[6]&0x3f;
-				tsrc.area = msg[7]&0x1f;
+				tsrc.area = msg[6];
 
 				if(data->patch.start){
 					if((data->patch.option & 0x01)== 0x01 && !touch_detect) 
@@ -1872,13 +1725,5 @@ int mxt_patch_init(struct mxt_data *data, u8* ppatch)
 #if !defined(CONFIG_TOUCHSCREEN_ATMEL_MXT224S) //1112
 	mxt_patch_load_t71data(data);
 #endif
-	return 0;
-}
-
-static int mxt_patch_goto_stage(struct mxt_data *data, u16 stage_num)
-{
-	data->patch.skip_test = 1;
-	data->patch.cur_stage = stage_num;
-	data->patch.run_stage = false;
 	return 0;
 }

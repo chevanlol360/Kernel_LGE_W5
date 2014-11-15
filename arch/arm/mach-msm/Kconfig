@@ -1132,12 +1132,6 @@ endmenu
 source "arch/arm/mach-msm/lge/Kconfig"
 # LGE_CHANGED_END
 
-config USE_QUP1_I2C
-	bool "Use QUP1 I2C"
-	default n
-	help
-	  Enable QUP1 I2C
-
 
 config MSM_STACKED_MEMORY
 	bool "Stacked Memory"

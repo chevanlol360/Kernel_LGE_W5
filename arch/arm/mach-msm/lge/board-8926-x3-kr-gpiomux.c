@@ -759,11 +759,7 @@ void __init msm8226_init_gpiomux(void)
 	} else if(hw_rev >= HW_REV_B) {
 #if defined (CONFIG_LGE_TOUCHSCREEN_SYNAPTIC) || defined(CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI4)
 		msm_gpiomux_install(msm_touch_configs_rev_b, ARRAY_SIZE(msm_touch_configs_rev_b));
-		if(hw_rev == HW_REV_B) {
-			printk(KERN_ERR "[Touch] HW_REV_B configs \n");
-		} else if (hw_rev >= HW_REV_B2) {
-			printk(KERN_ERR "[Touch] over HW_REV_B2 configs \n");
-		} else {}
+		printk(KERN_ERR "[Touch] over HW_REV_B configs \n");
 #endif /*                                                                          */
 	} else {}
 #endif /*                 */

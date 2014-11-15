@@ -81,11 +81,7 @@
 #define SMD_DRAIN_BUF_SIZE 4096
 
 #ifdef CONFIG_LGE_DIAG_ENABLE
-#if defined(CONFIG_MACH_MSM8X10_W5C_TRF_US) || defined(CONFIG_MACH_MSM8X10_W5C_TRF_US)
-#define DIAG_ENABLE_DEBUG 1
-#else
 #define DIAG_ENABLE_DEBUG 0
-#endif
 static int diag_enable_status = 0;
 #ifdef CONFIG_LGE_DIAG_ENABLE_SPR
 extern int user_diag_enable;
@@ -1385,13 +1381,9 @@ int diag_process_apps_pkt(unsigned char *buf, int len)
 #if DIAG_ENABLE_DEBUG
         pr_info("%s: diag_enable_status = %d \n",__func__,diag_enable_status);
 #endif
-
-#if !defined(CONFIG_MACH_MSM8X10_W5C_TRF_US) && !defined(CONFIG_MACH_MSM8X10_W5_TRF_US) && !defined(CONFIG_MACH_MSM8X10_W5C_SPR_US)
         driver->apps_rsp_buf[0] = 24;
         encode_rsp_and_send(0);
         return 0;
-#endif
-
     }
 #endif
 	/* Check if the command is a supported mask command */

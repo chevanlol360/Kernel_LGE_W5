@@ -153,7 +153,6 @@ enum dsi_lane_map_type {
 extern struct device dsi_dev;
 extern int mdss_dsi_clk_on;
 extern u32 dsi_irq;
-extern unsigned int system_rev;
 
 struct dsiphy_pll_divider_config {
 	u32 clk_rate;
@@ -228,10 +227,6 @@ enum {
 #define DSI_EV_MDP_FIFO_UNDERFLOW	0x0002
 #define DSI_EV_MDP_BUSY_RELEASE		0x80000000
 
-#if defined(CONFIG_FB_MSM_MIPI_LGD_LH500WX9_VIDEO_HD_PT_PANEL)
-#define DSI_LANE_CTRL_HS_MASK            0x10000000
-#define DSI_LANE_CTRL_LP_MASK            0x0FFFFFFF
-#endif
 struct mdss_dsi_ctrl_pdata {
 	int ndx;	/* panel_num */
 	int (*on) (struct mdss_panel_data *pdata);
@@ -293,25 +288,6 @@ struct mdss_dsi_ctrl_pdata {
 
 	struct dsi_buf tx_buf;
 	struct dsi_buf rx_buf;
-
-#if defined(CONFIG_LGE_MIPI_DSI_LGD_NT35521_WXGA)
-//	int lcd_boost_byp_byp;
-//	int lcd_boost_byp_en_gpio;
-	int lcd_pm_en_gpio;
-	int bl_en_gpio;
-	int lcd_dsv_enp_gpio;
-	int lcd_dsv_enn_gpio;
-#elif defined(CONFIG_LGE_MIPI_DSI_LGD_LVDS_WXGA)
-	struct regulator *lvds_1v8_vreg;
-	struct regulator *lvds_1v2_vreg;
-
-//	int lcd_en_gpio;
-	int lcd_stby_gpio;
-//	int lcd_rst_gpio;
-	int bl_vled_gpio;
-	int bl_pwm_gpio;
-	int bl_en_gpio;
-#endif
 };
 
 int dsi_panel_device_register(struct device_node *pan_node,
@@ -367,14 +343,4 @@ int mdss_dsi_bta_status_check(struct mdss_dsi_ctrl_pdata *ctrl);
 int mdss_dsi_panel_init(struct device_node *node,
 		struct mdss_dsi_ctrl_pdata *ctrl_pdata,
 		bool cmd_cfg_cont_splash);
-
-#if defined(CONFIG_LGE_MIPI_DSI_LGD_LVDS_WXGA)
-int lge_lvds_panel_power(struct mdss_panel_data *pdata, int enable);
-#endif
-
-#if defined(CONFIG_LGE_MIPI_DSI_LGD_NT35521_WXGA)
-int nt51012_panel_power(struct mdss_panel_data *pdata, int enable);
-int nt35521_panel_power(struct mdss_panel_data *pdata, int enable);
-#endif
-
 #endif /* MDSS_DSI_H */

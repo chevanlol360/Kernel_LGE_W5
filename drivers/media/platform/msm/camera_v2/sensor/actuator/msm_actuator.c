@@ -108,6 +108,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 				i2c_byte2 = value;
 				/*                                                                                                 */
 				switch (actuator_name) {
+				case ACTUATOR_MAIN_CAM_3: // reserved.
 				case ACTUATOR_MAIN_CAM_2:
 					if (size != (i+1)) {
 						i2c_byte2 = (value & 0xFF00) >> 8;
@@ -121,6 +122,7 @@ static void msm_actuator_parse_i2c_params(struct msm_actuator_ctrl_t *a_ctrl,
 						i2c_byte2 = (value & 0x00FF);
 					}
 					break;
+				case ACTUATOR_MAIN_CAM_4: // this is for imx219 actuator
 				case ACTUATOR_MAIN_CAM_0:
 				case ACTUATOR_MAIN_CAM_1:
 				default:
@@ -186,7 +188,7 @@ static int32_t msm_actuator_init_focus(struct msm_actuator_ctrl_t *a_ctrl,
 			break;
 	}
 
-	a_ctrl->curr_step_pos = 1;  /*                                                                   */
+	a_ctrl->curr_step_pos = 0;
 	CDBG("Exit\n");
 	return rc;
 }
@@ -606,10 +608,8 @@ static int32_t msm_actuator_init(struct msm_actuator_ctrl_t *a_ctrl,
 		rc = a_ctrl->func_tbl->
 			actuator_init_step_table(a_ctrl, set_info);
 
-/*                                                                     */
-	a_ctrl->curr_step_pos = 1;
-	a_ctrl->curr_region_index = 1;
-/*                                                                     */
+	a_ctrl->curr_step_pos = 0;
+	a_ctrl->curr_region_index = 0;
 	CDBG("Exit\n");
 
 	return rc;
@@ -963,6 +963,7 @@ static int32_t msm_actuator_i2c_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)
 {
 	int rc = 0;
+	static int sa_index = 0;
 	struct msm_actuator_ctrl_t *act_ctrl_t = NULL;
 	CDBG("Enter\n");
 
@@ -996,6 +997,20 @@ static int32_t msm_actuator_i2c_probe(struct i2c_client *client,
 
 	act_ctrl_t->i2c_driver = &msm_actuator_i2c_driver;
 	act_ctrl_t->i2c_client.client = client;
+
+/*                                                */
+/*                                                                                                                                            
+                                               
+                                                                                                                                            
+                                                                                                                                        
+                                                                                                                                   */
+/*   Do not require pre-defined context, because of thisis only for 8x10 */
+	#if 1
+	act_ctrl_t->i2c_client.client->addr -= sa_index;
+	sa_index += 1;
+	CDBG("[dbg]slave address = 0x%x\n",act_ctrl_t->i2c_client.client->addr );
+	#endif
+/*                                                */
 	act_ctrl_t->curr_step_pos = 0,
 	act_ctrl_t->curr_region_index = 0,
 	/* Set device type as I2C */

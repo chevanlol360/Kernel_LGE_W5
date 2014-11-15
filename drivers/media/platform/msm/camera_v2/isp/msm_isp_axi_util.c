@@ -976,12 +976,7 @@ void msm_camera_io_dump_2(void __iomem *addr, int size)
 
 /*Factor in Q2 format*/
 #define ISP_DEFAULT_FORMAT_FACTOR 6
-/*                                                                                      */
-#if defined(CONFIG_MACH_MSM8X10_W5) || defined(CONFIG_MACH_MSM8X10_W6)
-#define ISP_BUS_UTILIZATION_FACTOR 16
-#else
 #define ISP_BUS_UTILIZATION_FACTOR 6
-#endif
 /*                                                                                      */
 static int msm_isp_update_stream_bandwidth(struct vfe_device *vfe_dev)
 {

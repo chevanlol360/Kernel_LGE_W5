@@ -88,7 +88,7 @@ unsigned char F54_RxToRxReport(void)
 
 	read_count = 0;
 	do {
-		if(++read_count > 500) {
+		if(++read_count > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return 2;
 		}
@@ -101,7 +101,7 @@ unsigned char F54_RxToRxReport(void)
 
 	read_count = 0;
 	do {
-		if(++read_count > 1000) {
+		if(++read_count > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return 2;
 		}
@@ -123,7 +123,7 @@ unsigned char F54_RxToRxReport(void)
 	// Wait until the command is completed
 	read_count = 0;
 	do {
-		if(++read_count > 500) {
+		if(++read_count > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return 2;
 		}
@@ -158,7 +158,7 @@ unsigned char F54_RxToRxReport(void)
 
 	read_count = 0;
 	do {
-		if(++read_count > 500) {
+		if(++read_count > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return 2;
 		}
@@ -171,7 +171,7 @@ unsigned char F54_RxToRxReport(void)
 
 	read_count = 0;
 	do {
-		if(++read_count > 1000) {
+		if(++read_count > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return 2;
 		}
@@ -191,7 +191,7 @@ unsigned char F54_RxToRxReport(void)
 	// Wait until the command is completed
    read_count = 0;
    do {
-		if(++read_count > 500) {
+		if(++read_count > 50) {
 				TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 				return 2;
 			}
@@ -363,7 +363,7 @@ int F54_GetRxToRxReport(char *buf)
 
 	waitcount = 0;
 	do {
-		if(++waitcount > 500) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -376,7 +376,7 @@ int F54_GetRxToRxReport(char *buf)
 
 	waitcount = 0;
 	do {
-		if(++waitcount > 1000) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -398,7 +398,7 @@ int F54_GetRxToRxReport(char *buf)
 	// Wait until the command is completed
 	waitcount = 0;
 	do {
-		if(++waitcount > 500) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -435,7 +435,7 @@ int F54_GetRxToRxReport(char *buf)
 
 	waitcount = 0;
 	do {
-		if(++waitcount > 500) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -448,7 +448,7 @@ int F54_GetRxToRxReport(char *buf)
 
 	waitcount = 0;
 	do {
-		if(++waitcount > 1000) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -467,7 +467,7 @@ int F54_GetRxToRxReport(char *buf)
 	// Wait until the command is completed
 	waitcount = 0;
 	do {
-		if(++waitcount > 500) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			return ret;
 		}
@@ -549,7 +549,7 @@ int F54_GetRxToRxReport(char *buf)
 
 	waitcount = 0;
 	do {
-		if(++waitcount > 500) {
+		if(++waitcount > 50) {
 			TOUCH_INFO_MSG("%s[%d], command = %d\n", __func__, __LINE__, command);
 			break;
 		}

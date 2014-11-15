@@ -1232,7 +1232,7 @@
 #define BMA_MAX_RETRY_I2C_XFER (100)
 
 #ifdef BMA2X2_ACCEL_CALIBRATION
-#define BMA2X2_SHAKING_DETECT_THRESHOLD	(300)
+#define BMA2X2_SHAKING_DETECT_THRESHOLD	(5000)
 #endif
 
 #ifdef CONFIG_BMA_USE_PLATFORM_DATA
@@ -4464,7 +4464,7 @@ static ssize_t bma2x2_selftest_store(struct device *dev,
 
 	bma2x2_soft_reset(bma2x2->bma2x2_client);
 	mdelay(5);
-#ifdef BMA2X2_ACCEL_CALIBRATION
+#ifdef BMA2X2_ACCEL_CALIBRATION 	
 	bma2x2_set_bandwidth(bma2x2->bma2x2_client, BMA2X2_BW_SET);
 #endif
 	printk(KERN_INFO "self test finished\n");

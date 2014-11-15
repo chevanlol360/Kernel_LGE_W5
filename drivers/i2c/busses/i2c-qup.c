@@ -38,7 +38,6 @@
 #include <mach/board.h>
 #include <mach/gpiomux.h>
 #include <mach/msm_bus_board.h>
-#include <mach/board_lge.h>
 
 MODULE_LICENSE("GPL v2");
 MODULE_VERSION("0.2");
@@ -136,9 +135,9 @@ enum {
 #define QUP_OUT_FIFO_NOT_EMPTY		0x10
 #define I2C_GPIOS_DT_CNT		(2)		/* sda and scl */
 
-//                                                   
-bool i2c_suspended = false;
-
+#if defined(CONFIG_TOUCHSCREEN_ATMEL_S540)
+bool i2c_suspended = false;		/* Use atme touch IC for checking i2c suspend */
+#endif
 static char const * const i2c_rsrcs[] = {"i2c_clk", "i2c_sda"};
 
 static struct gpiomux_setting recovery_config = {
@@ -1767,10 +1766,6 @@ static int qup_i2c_suspend(struct device *device)
 {
 	if (!pm_runtime_enabled(device) || !pm_runtime_suspended(device)) {
 		dev_dbg(device, "system suspend");
-
-		//                                                   
-		i2c_suspended = true;
-
 		i2c_qup_pm_suspend_runtime(device);
 		/*
 		 * set the device's runtime PM status to 'suspended'
@@ -1779,7 +1774,9 @@ static int qup_i2c_suspend(struct device *device)
 		pm_runtime_set_suspended(device);
 		pm_runtime_enable(device);
 	}
-
+#if defined(CONFIG_TOUCHSCREEN_ATMEL_S540)
+	i2c_suspended = true;
+#endif
 	return 0;
 }
 
@@ -1791,46 +1788,9 @@ static int qup_i2c_resume(struct device *device)
 	 * clock ON and gpio configuration
 	 */
 	dev_dbg(device, "system resume");
-#if defined(CONFIG_MACH_MSM8926_X3_KR) || defined(CONFIG_MACH_MSM8926_X3N_KR) || defined(CONFIG_MACH_MSM8926_G2M_KR) || defined(CONFIG_MACH_MSM8926_F70N_KR)
-	if(lge_get_board_revno() <  HW_REV_B) {
-			dev_info(device, "X3_KR / G2M_KR revA/A2!!");
-	} else {
-		//                                                                
-		if (pm_runtime_suspended(device)) {
-			dev_info(device, "i2c is runtime suspended status !!! try to runtime resume !!!\n");
-		}
-
-		if (!pm_runtime_enabled(device)) {
-			dev_info(device, "Runtime PM is disabled\n");
-			i2c_qup_pm_resume_runtime(device);
-		} else {
-			pm_runtime_get_sync(device);
-		}
-
-	        if (pm_runtime_suspended(device)) {
-			dev_info(device, "i2c can't wake up !!! pm_runtime_get_sync() doesn't work !!!\n");
-		}
-	}
-#else
-	//                                                                
-	if (pm_runtime_suspended(device)) {
-		dev_info(device, "i2c is runtime suspended status !!! try to runtime resume !!!\n");
-	}
-
-	if (!pm_runtime_enabled(device)) {
-		dev_info(device, "Runtime PM is disabled\n");
-		i2c_qup_pm_resume_runtime(device);
-	} else {
-		pm_runtime_get_sync(device);
-	}
-
-	if (pm_runtime_suspended(device)) {
-		dev_info(device, "i2c can't wake up !!! pm_runtime_get_sync() doesn't work !!!\n");
-	}
-#endif
-	//                                                   
+#if defined(CONFIG_TOUCHSCREEN_ATMEL_S540)
 	i2c_suspended = false;
-
+#endif
 	return 0;
 }
 #endif /* CONFIG_PM */

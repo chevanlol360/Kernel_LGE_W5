@@ -13,12 +13,6 @@
 #define pr_fmt(fmt)	"%s: " fmt, __func__
 
 #include <linux/module.h>
-
-#if defined (CONFIG_LGE_PM_CHARGING_EXTERNAL_OVP)
-#include <linux/gpio.h>
-#include <linux/of_gpio.h>
-#endif
-
 #include <linux/slab.h>
 #include <linux/err.h>
 #include <linux/spmi.h>
@@ -44,7 +38,6 @@
 
 #ifdef CONFIG_LGE_USING_CHG_LED
 #include <linux/qpnp/pwm.h>
-#include <mach/board_lge.h>
 #endif
 
 /*                                          */
@@ -53,15 +46,12 @@
 #include <mach/board_lge.h>
 #endif
 #ifdef CONFIG_LGE_PM_CHARGING_TEMP_SCENARIO
-#if defined(CONFIG_MACH_MSM8926_X5_SPR) || defined(CONFIG_MACH_MSM8X10_W5C_SPR_US) || defined(CONFIG_MACH_MSM8926_JAGC_SPR)
+#ifdef CONFIG_MACH_MSM8926_X5_SPR
 #include <mach/lge_charging_scenario_sprint.h>
 #else
 #include <mach/lge_charging_scenario.h>
 #endif 
 #define MONITOR_BATTEMP_POLLING_PERIOD          (60*HZ)
-#endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-#include <linux/max17048_battery.h>
 #endif
 /*              */
 
@@ -296,7 +286,7 @@ static int usb_chg_state = IS_USB_DRIVER_INSTALLED;
 #ifdef CONFIG_LGE_PM_VZW_LLK
 static int temp_state = 0;
 #endif
-
+ 
 extern int lge_usb_config_finish;
 extern void send_drv_state_uevent(int usb_drv_state);
 #endif
@@ -309,11 +299,6 @@ struct qpnp_chg_regulator {
 	struct regulator_desc			rdesc;
 	struct regulator_dev			*rdev;
 };
-
-/* Charging information Debugging Log */
-#ifdef CONFIG_MACH_MSM8926_X3N_KR
-#define CIDL
-#endif
 
 #ifdef CONFIG_LGE_USING_CHG_LED
 /**
@@ -477,9 +462,6 @@ struct qpnp_chg_chip {
 	int						chg_current_te;
 #endif
 #endif
-#ifdef CIDL
-	struct delayed_work		charging_inform_work;
-#endif
 	struct power_supply		dc_psy;
 	struct power_supply		*usb_psy;
 	struct power_supply		*bms_psy;
@@ -547,12 +529,6 @@ struct qpnp_chg_chip {
 	struct led_classdev    cdev;
 	struct pwm_config_data *pwm_cfg;
 #endif
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	struct power_supply *maxim17048;
-#endif
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	struct power_supply *wireless;
-#endif
 };
 
 static struct of_device_id qpnp_charger_match_table[] = {
@@ -582,6 +558,11 @@ int testmode_stop_eoc = 0;
 bool lge_check_fast_chg_irq(void);
 void lge_set_chg_path_to_external(void);
 void lge_set_chg_path_to_internal(void);
+#endif
+
+#ifdef CONFIG_LGE_PM_VZW_HIGH_TEMP_PWR_OFF
+extern void write_high_temp_power_off(char *filename);
+extern int read_high_temp_power_off(char *filename);
 #endif
 
 /*                                          */
@@ -619,9 +600,6 @@ enum
 
 static void lge_pm_set_ext_ovp(int ext_ovp_gpio, bool on)
 {
-#if defined (CONFIG_LGE_PM_CHARGING_EXTERNAL_OVP)
-		gpio_direction_output(31, on);
-#endif
 	if (gpio_is_valid(ext_ovp_gpio))
 		gpio_set_value(ext_ovp_gpio, on);
 }
@@ -641,17 +619,6 @@ lge_pm_batt_temp_cancel_work(struct work_struct *work)
 	if (wake_lock_active(&chip->lcs_wake_lock))
 		wake_unlock(&chip->lcs_wake_lock);
 }
-#endif
-#ifdef CONFIG_LGE_PM
-int32_t qpnp_charger_is_ready(void)
-{
-	struct qpnp_chg_chip *chg = qpnp_chg;
-
-	if (!chg)
-		return -EPROBE_DEFER;
-	return 0;
-}
-EXPORT_SYMBOL(qpnp_charger_is_ready);
 #endif
 
 enum bpd_type {
@@ -837,7 +804,9 @@ qpnp_chg_is_boost_en_set(struct qpnp_chg_chip *chip)
 
 	return (boost_en_ctl & BOOST_PWR_EN) ? 1 : 0;
 }
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+
+/*                            */
+#ifndef CONFIG_LGE_PM
 static int
 qpnp_chg_is_batt_temp_ok(struct qpnp_chg_chip *chip)
 {
@@ -1300,24 +1269,6 @@ qpnp_chg_charge_en(struct qpnp_chg_chip *chip, int enable)
 			CHGR_CHG_EN,
 			enable ? CHGR_CHG_EN : 0, 1);
 }
-
-#ifdef CONFIG_LGE_PM
-int32_t external_qpnp_enable_charging(bool enable)
-{
-	int ret;
-
-	pr_debug("external_qpnp_enable_charging = %d.\n", enable);
-
-	ret = qpnp_chg_charge_en(qpnp_chg, enable);
-
-	if (ret) {
-		pr_err("Failed to set qpnp_chg_charge_en rc=%d\n", ret);
-		return ret;
-		}
-
-	return 0;
-}
-#endif
 
 static int
 qpnp_chg_force_run_on_batt(struct qpnp_chg_chip *chip, int disable)
@@ -1946,7 +1897,8 @@ qpnp_chg_usb_usbin_valid_irq_handler(int irq, void *_chip)
 	return IRQ_HANDLED;
 }
 
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+/*                            */
+#ifndef CONFIG_LGE_PM
 static irqreturn_t
 qpnp_chg_bat_if_batt_temp_irq_handler(int irq, void *_chip)
 {
@@ -2604,40 +2556,6 @@ get_prop_charge_type(struct qpnp_chg_chip *chip)
 {
 	int rc;
 	u8 chgr_sts;
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	union power_supply_propval ret = {0,};
-	int wlc_online = 0;
-	if (chip->wireless== NULL)
-		chip->wireless = power_supply_get_by_name("wireless");
-	if (chip->wireless!=NULL){
-		/* if wireless charger has been registered, use the present property */
-		chip->wireless->get_property(chip->wireless,
-					POWER_SUPPLY_PROP_ONLINE, &ret);
-		wlc_online = ret.intval;
-	}
-	if (!get_prop_batt_present(chip))
-		return POWER_SUPPLY_CHARGE_TYPE_NONE;
-
-	rc = qpnp_chg_read(chip, &chgr_sts,
-				INT_RT_STS(chip->chgr_base), 1);
-	if (rc) {
-		pr_err("failed to read interrupt sts %d\n", rc);
-		if(wlc_online)
-			return POWER_SUPPLY_CHARGE_TYPE_WIRELESS;
-		else			
-			return POWER_SUPPLY_CHARGE_TYPE_NONE;
-	}
-
-	if (chgr_sts & TRKL_CHG_ON_IRQ)
-		return POWER_SUPPLY_CHARGE_TYPE_TRICKLE;
-	if (chgr_sts & FAST_CHG_ON_IRQ)
-		return POWER_SUPPLY_CHARGE_TYPE_FAST;
-
-	if (wlc_online)
-		return POWER_SUPPLY_CHARGE_TYPE_WIRELESS;
-	
-	return POWER_SUPPLY_CHARGE_TYPE_NONE;
-#else
 
 	if (!get_prop_batt_present(chip))
 		return POWER_SUPPLY_CHARGE_TYPE_NONE;
@@ -2655,7 +2573,6 @@ get_prop_charge_type(struct qpnp_chg_chip *chip)
 		return POWER_SUPPLY_CHARGE_TYPE_FAST;
 
 	return POWER_SUPPLY_CHARGE_TYPE_NONE;
-#endif	
 }
 
 static int
@@ -2664,31 +2581,12 @@ get_prop_batt_status(struct qpnp_chg_chip *chip)
 	int rc;
 	u8 chgr_sts, bat_if_sts;
 	int chg_type = get_prop_charge_type(chip);
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	union power_supply_propval ret = {0,};
-	int wlc_status = POWER_SUPPLY_STATUS_UNKNOWN;
-//	int wlc_online = 0;
-//	printk("[WLC] %s: chg_type is %d\n",__func__,chg_type);
-#endif
+
 	if ((qpnp_chg_is_usb_chg_plugged_in(chip) ||
 		qpnp_chg_is_dc_chg_plugged_in(chip)) && chip->chg_done) {
 		return POWER_SUPPLY_STATUS_FULL;
 	}
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	if (chip->wireless== NULL)
-		chip->wireless = power_supply_get_by_name("wireless");
-	if (chip->wireless!=NULL){
-		/* if wireless charger has been registered, use the present property */
-		chip->wireless->get_property(chip->wireless,
-					POWER_SUPPLY_PROP_STATUS, &ret);
-		wlc_status = ret.intval;
-	}
-	if(wlc_status==POWER_SUPPLY_STATUS_FULL)
-	{
-//		printk("[WLC] %s: WLC Battery Full!!!\n",__func__);
-		return POWER_SUPPLY_STATUS_FULL;
-	}
-#endif
+
 	rc = qpnp_chg_read(chip, &chgr_sts, INT_RT_STS(chip->chgr_base), 1);
 	if (rc) {
 		pr_err("failed to read interrupt sts %d\n", rc);
@@ -2706,13 +2604,6 @@ get_prop_batt_status(struct qpnp_chg_chip *chip)
 			return POWER_SUPPLY_STATUS_CHARGING;
 		else if (chip->not_chg == CHG_BATT_STPCHG_STATE)
 			return POWER_SUPPLY_STATUS_NOT_CHARGING;
-	}
-#endif
-#ifdef CONFIG_LGE_WIRELESS_CHARGER_RT9536
-	if (chg_type == POWER_SUPPLY_CHARGE_TYPE_WIRELESS)
-	{
-//		printk("[WLC] %s: WLC Battery Charging!!!\n",__func__);
-		return POWER_SUPPLY_STATUS_CHARGING;
 	}
 #endif
 	if (chg_type == POWER_SUPPLY_CHARGE_TYPE_UNKNOWN ||
@@ -2756,7 +2647,6 @@ get_prop_current_now(struct qpnp_chg_chip *chip)
 	return 0;
 }
 
-#if defined(CONFIG_LGE_PM) && !defined(CONFIG_MAX17048_FUELGAUGE)
 static int
 get_prop_full_design(struct qpnp_chg_chip *chip)
 {
@@ -2846,196 +2736,7 @@ get_prop_capacity(struct qpnp_chg_chip *chip)
 	 * from shutting down unecessarily */
 	return DEFAULT_CAPACITY;
 }
-#else
-static int
-get_prop_full_design(struct qpnp_chg_chip *chip)
-{
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	int result = 0;
-	int use_fuelgauge = 0;
-	
-	union power_supply_propval ret = {0,};
 
-	if (chip->bms_psy)
-	{
-		use_fuelgauge = chip->bms_psy->use_external_fuelgauge;
-		//                                                                 
-	}
-	else
-	{
-		use_fuelgauge = 0;
-		pr_err("[LGE] There is no BMS driver!!!\n");
-	}
-	
-	if (chip->maxim17048== NULL)
-			chip->maxim17048 = power_supply_get_by_name("max17048");
-	if ((use_fuelgauge)&&(chip->maxim17048!=NULL)){
-		/* if battery has been registered, use the present property */
-		chip->maxim17048->get_property(chip->maxim17048,
-					POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN, &ret);
-		result = ret.intval;
-	}
-	else
-	{
-		if (chip->bms_psy) {
-			chip->bms_psy->get_property(chip->bms_psy,
-				  POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN, &ret);
-			return ret.intval;
-		} else {
-			pr_debug("No BMS supply registered return 0\n");
-		}
-		
-		return 0;
-	}
-	return result;
-	
-//	return max17048_get_fulldesign();
-#else
-	pr_err("CONFIG_MAX17048_FUELGAUGE is not defined.\n");
-	return 2500;
-#endif
-}
-
-static int
-get_prop_charge_full(struct qpnp_chg_chip *chip)
-{
-
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	int result = 0;
-	int use_fuelgauge = 0;
-	
-	union power_supply_propval ret = {0,};
-
-	if (chip->bms_psy)
-	{
-		use_fuelgauge = chip->bms_psy->use_external_fuelgauge;
-		//                                                                 
-	}
-	else
-	{
-		use_fuelgauge = 0;
-		pr_err("[LGE] There is no BMS driver!!!\n");
-	}
-	
-	if (chip->maxim17048== NULL)
-			chip->maxim17048 = power_supply_get_by_name("max17048");
-	if ((use_fuelgauge)&&(chip->maxim17048!=NULL)){
-		/* if battery has been registered, use the present property */
-		chip->maxim17048->get_property(chip->maxim17048,
-					POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN, &ret);
-		result = ret.intval;
-	}
-	else
-	{
-		if (chip->bms_psy) {
-			chip->bms_psy->get_property(chip->bms_psy,
-				  POWER_SUPPLY_PROP_CHARGE_FULL, &ret);
-			return ret.intval;
-		} else {
-			pr_debug("No BMS supply registered return 0\n");
-		}
-		
-		return 0;
-	}
-	return result;
-	
-//	return max17048_get_fulldesign();
-#else
-	pr_err("CONFIG_MAX17048_FUELGAUGE is not defined.\n");
-	return 2500;
-#endif
-}
-
-#define DEFAULT_CAPACITY	50
-static int
-get_prop_capacity(struct qpnp_chg_chip *chip)
-{
-#ifdef CONFIG_MAX17048_FUELGAUGE
-	int capacity = 0;
-	int soc;
-	int use_fuelgauge = 0;
-#ifndef CONFIG_LGE_PM_4_25V_CHARGING_START			
-	int battery_status, bms_status, charger_in;
-#endif
-
-	union power_supply_propval ret = {0,};
-	if (chip->bms_psy)
-	{
-		use_fuelgauge = chip->bms_psy->use_external_fuelgauge;
-	}
-	else
-	{
-		use_fuelgauge = 0;
-		pr_err("[LGE] There is no BMS driver!!!\n");
-	}
-
-	
-	if (chip->maxim17048== NULL)
-			chip->maxim17048 = power_supply_get_by_name("max17048");
-	if ((use_fuelgauge)&&(chip->maxim17048!=NULL)){
-		/* if battery has been registered, use the present property */
-		chip->maxim17048->get_property(chip->maxim17048,
-					POWER_SUPPLY_PROP_CAPACITY, &ret);
-		capacity = ret.intval;
-	}
-	else
-	{
-		if (chip->fake_battery_soc >= 0)
-			return chip->fake_battery_soc;
-
-		if (chip->use_default_batt_values || !get_prop_batt_present(chip))
-			return DEFAULT_CAPACITY;
-
-		if (chip->bms_psy) {
-			chip->bms_psy->get_property(chip->bms_psy,
-					POWER_SUPPLY_PROP_CAPACITY, &ret);
-			soc = ret.intval;
-#ifndef CONFIG_LGE_PM_4_25V_CHARGING_START    
-			battery_status = get_prop_batt_status(chip);
-			chip->bms_psy->get_property(chip->bms_psy,
-					POWER_SUPPLY_PROP_STATUS, &ret);
-			bms_status = ret.intval;
-			charger_in = qpnp_chg_is_usb_chg_plugged_in(chip) ||
-				qpnp_chg_is_dc_chg_plugged_in(chip);
-
-			if (battery_status != POWER_SUPPLY_STATUS_CHARGING
-					&& bms_status != POWER_SUPPLY_STATUS_CHARGING
-					&& charger_in
-					&& !chip->bat_is_cool
-					&& !chip->bat_is_warm
-					&& !chip->resuming_charging
-					&& !chip->charging_disabled
-					&& chip->soc_resume_limit
-					&& soc <= chip->soc_resume_limit) {
-				pr_debug("resuming charging at %d%% soc\n", soc);
-				chip->resuming_charging = true;
-				qpnp_chg_set_appropriate_vbatdet(chip);
-				qpnp_chg_charge_en(chip, !chip->charging_disabled);
-			}
-#endif		
-			if (soc == 0) {
-				if (!qpnp_chg_is_usb_chg_plugged_in(chip)
-					&& !qpnp_chg_is_usb_chg_plugged_in(chip))
-					pr_warn_ratelimited("Battery 0, CHG absent\n");
-			}
-			return soc;
-		} else {
-			pr_debug("No BMS supply registered return 50\n");
-		}
-
-		/* return default capacity to avoid userspace
-		 * from shutting down unecessarily */
-		return DEFAULT_CAPACITY;
-	}
-	printk("[LGE] battery capacity is %d...\n",capacity);	
-	return capacity;
-#else
-	pr_err("NOT INIT max17048, Cannot get capacity.\n");
-	return 51;
-#endif
-}
-
-#endif
 #define DEFAULT_TEMP		250
 #define MAX_TOLERABLE_BATT_TEMP_DDC	680
 static int
@@ -3480,6 +3181,12 @@ qpnp_batt_power_get_property(struct power_supply *psy,
 		break;
 	case POWER_SUPPLY_PROP_TEMP:
 		val->intval = get_prop_batt_temp(chip);
+#ifdef CONFIG_LGE_PM_VZW_HIGH_TEMP_PWR_OFF
+		if(lge_get_boot_mode() != LGE_BOOT_MODE_CHARGERLOGO) {
+			if(val->intval > 600)
+				write_high_temp_power_off("/persist/is_high_temp_pwr_off");
+		}
+#endif
 #ifdef CONFIG_LGE_PM_CHARGING_TEMP_SCENARIO
 		chip->current_batt_temp = val->intval;
 #endif
@@ -5197,7 +4904,8 @@ qpnp_chg_request_irqs(struct qpnp_chg_chip *chip)
 
 			enable_irq_wake(chip->batt_pres.irq);
 
-#ifndef CONFIG_LGE_PM_DISABLE_BTC
+/*                            */
+#ifndef CONFIG_LGE_PM
 			chip->batt_temp_ok.irq = spmi_get_irq_byname(spmi,
 						spmi_resource, "bat-temp-ok");
 			if (chip->batt_temp_ok.irq < 0) {
@@ -5363,54 +5071,6 @@ static enum led_brightness qpnp_chg_led_get(struct led_classdev *led_cdev)
 
 	return chip->cdev.brightness;
 }
-#define LED_BUFF_SIZE 50
-static ssize_t red_blink_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	struct qpnp_chg_chip *chip;
-	int type = 0;
-	int offMS = 0;
-	int onMS = 0;
-	int brightness = 0;
-
-	chip = container_of(led_cdev, struct qpnp_chg_chip, cdev);
-
-	brightness = led_cdev->brightness;
-
-	return snprintf(buf, LED_BUFF_SIZE, "%d, %d, %d, %d\n",type, offMS, onMS, brightness);
-}
-
-static ssize_t red_blink_store(struct device *dev,
-	struct device_attribute *attr,
-	const char *buf, size_t count)
-{
-	struct qpnp_chg_chip *chip;
-	int brightness;
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	int type = 0;
-	int offMS = 0;	int onMS = 0;
-
-	if(sscanf(buf, "%d,%d,%d,%d", &type, &offMS, &onMS, &brightness) != 4)
-		printk("bad arguments ");
-
-	chip = container_of(led_cdev, struct qpnp_chg_chip, cdev);
-	chip->cdev.brightness = brightness;
-
-	printk(KERN_INFO "%s(), LINE:%d type:%d, offMS:%d, onMS:%d, brightness:%d\n",
-			__func__,__LINE__, type, offMS, onMS, brightness);
-
-	qpnp_chg_led_set(led_cdev, brightness);
-	return count;
-}
-static DEVICE_ATTR(red_blink, 0664, red_blink_show, red_blink_store);
-static struct attribute *blink_attrs[] = {
-	&dev_attr_red_blink.attr,
-	NULL
-};
-static const struct attribute_group blink_attr_group = {
-	.attrs = blink_attrs,
-};
 #endif
 
 #ifdef CONFIG_LGE_PM_THERMAL
@@ -6154,7 +5814,7 @@ qpnp_pwr_key_action_set_for_chg_logo(struct input_dev *dev, unsigned int code, i
     {
          key_filter_start = false;
 	     key_filter_end = true;
-
+	
 	    cancel_delayed_work_sync(&qpnp_chg->pwr_key_monitor_for_chg_logo);
 		return;
     }
@@ -6180,50 +5840,6 @@ qpnp_pwr_key_action_set_for_chg_logo(struct input_dev *dev, unsigned int code, i
 EXPORT_SYMBOL(qpnp_pwr_key_action_set_for_chg_logo);
 #endif
 
-#ifdef CIDL
-#define SBMM_BAT_FET				0x0B
-#define CHARGING_INFORM_NORMAL_TIME		20000
-
-static void charging_information(struct work_struct *work)
-{
-	int rc=0;		int ret=0;
-	int usb_in=0;	int qpnp_volt=0;	int qpnp_soc=0;		int iusb_max=0;		int ibat_max=0;
-	int ibat=0;		u8 chg_ctrl=0;	u8 bat_fet_sts=0;		u8 bat_if_sts=0;
-	int bat_temp=0;	u8 chg_sts=0;		int cable_info=0;
-
-	struct delayed_work		*dwork = to_delayed_work(work);
-	struct qpnp_chg_chip		*chip = container_of(dwork,struct qpnp_chg_chip,charging_inform_work);
-
-	usb_in = qpnp_chg_is_usb_chg_plugged_in(chip);
-	qpnp_volt = get_prop_battery_voltage_now(chip)/1000;
-	qpnp_soc = get_prop_capacity(chip);
-	iusb_max = qpnp_chg_usb_iusbmax_get(chip);
-	rc = qpnp_chg_ibatmax_get(chip,&ibat_max);
-	ibat = get_prop_current_now(chip)/1000;
-	rc = qpnp_chg_read(chip, &chg_ctrl, chip->chgr_base + CHGR_CHG_CTRL, 1);
-	rc = qpnp_chg_read(chip, &bat_fet_sts, chip->bat_if_base + SBMM_BAT_FET, 1);
-	rc = qpnp_chg_read(chip, &chg_sts, INT_RT_STS(chip->chgr_base), 1);
-	rc = qpnp_chg_read(chip, &bat_if_sts, INT_RT_STS(chip->bat_if_base), 1);
-	bat_temp = get_prop_batt_temp(chip)/10;
-	cable_info = lge_pm_get_cable_type();
-
-	pr_info("[C], USB_IRQ, Qpnp_Volt, Qpnp_SOC, IUSB_MAX, IBAT_MAX, IBAT_NOW, CHG_CTRL, BAT_FET_STS, CHG_STS, BAT_IF_STS, BAT_TEMP, Cable_info\n");
-	pr_info("[I], %d , %d , %d , %d , %d , %d , 0x%x , 0x%x , 0x%x , 0x%x , %d , %d(11)\n",
-		usb_in,qpnp_volt,qpnp_soc,iusb_max,ibat_max,ibat,chg_ctrl,bat_fet_sts,chg_sts,bat_if_sts,bat_temp,cable_info);
-
-	ret = schedule_delayed_work(&chip->charging_inform_work,
-		round_jiffies_relative(msecs_to_jiffies(CHARGING_INFORM_NORMAL_TIME)));
-
-}
-
-static void charging_information_probe(struct qpnp_chg_chip *chip)
-{
-	printk(KERN_INFO "[CHARGING_INFORMATION] Probe\n");
-	INIT_DELAYED_WORK(&chip->charging_inform_work,charging_information);
-	schedule_delayed_work(&chip->charging_inform_work,
-		round_jiffies_relative(msecs_to_jiffies(CHARGING_INFORM_NORMAL_TIME)));
-}
-#endif
 
 static int __devinit
 qpnp_charger_probe(struct spmi_device *spmi)
@@ -6246,7 +5862,7 @@ qpnp_charger_probe(struct spmi_device *spmi)
 		cable_type = *p_cable_type;
 	else
 		cable_type = 0;
-
+	
 	pr_info("[LGE] cable_type is = %d\n", cable_type);
 #endif
 /*              */
@@ -6271,7 +5887,7 @@ qpnp_charger_probe(struct spmi_device *spmi)
 	}
 #ifdef CONFIG_LGE_PM_USB_ID
 	rc = lge_pm_get_cable_data_from_dt(spmi->dev.of_node);
-	if (rc)
+	if (rc) 
 		goto fail_chg_enable;
 #endif
 
@@ -6382,25 +5998,18 @@ qpnp_charger_probe(struct spmi_device *spmi)
 		case SMBCL_CHGR_SUBTYPE:
 			chip->chgr_base = resource->start;
 #ifdef CONFIG_LGE_USING_CHG_LED
-			{
-				hw_rev_type hw_rev;
-				hw_rev = lge_get_board_revno();
-
-				if(hw_rev == HW_REV_A) {
-					chip->cdev.name = "red";
-					chip->cdev.max_brightness = 0;
-					chip->cdev.default_trigger = "none";
-					chip->cdev.brightness_set    = qpnp_chg_led_set;
-					chip->cdev.brightness_get    = qpnp_chg_led_get;
-					rc = led_classdev_register(&spmi->dev, &chip->cdev);
-					chip->pwm_cfg = devm_kzalloc(chip->dev,
-								sizeof(struct pwm_config_data),	GFP_KERNEL);
-					chip->pwm_cfg->pwm_channel = 2;
-					chip->pwm_cfg->pwm_dev = pwm_request(chip->pwm_cfg->pwm_channel, "chg_led");
-					chip->pwm_cfg->pwm_period_us = 20000;
-					rc = sysfs_create_group(&chip->cdev.dev->kobj, &blink_attr_group);
-				}
-			}
+			chip->cdev.name = "red";
+            chip->cdev.max_brightness = 0;
+			chip->cdev.default_trigger = "none";
+			chip->cdev.brightness_set    = qpnp_chg_led_set;
+			chip->cdev.brightness_get    = qpnp_chg_led_get;
+			rc = led_classdev_register(&spmi->dev, &chip->cdev);
+			chip->pwm_cfg = devm_kzalloc(chip->dev,
+						sizeof(struct pwm_config_data),
+						GFP_KERNEL);
+			chip->pwm_cfg->pwm_channel = 2;
+			chip->pwm_cfg->pwm_dev = pwm_request(chip->pwm_cfg->pwm_channel, "chg_led");
+			chip->pwm_cfg->pwm_period_us = 20000;
 #endif
 
 			rc = qpnp_chg_hwinit(chip, subtype, spmi_resource);
@@ -6464,9 +6073,6 @@ qpnp_charger_probe(struct spmi_device *spmi)
 						subtype, rc);
 				goto fail_chg_enable;
 			}
-#if defined (CONFIG_LGE_PM_CHARGING_EXTERNAL_OVP)
-			gpio_request(31, "ext_ovp");
-#endif
 			break;
 		case SMBB_DC_CHGPTH_SUBTYPE:
 			chip->dc_chgpth_base = resource->start;
@@ -6714,9 +6320,6 @@ qpnp_charger_probe(struct spmi_device *spmi)
         }
 #endif
 
-#ifdef CIDL
-		charging_information_probe(chip);
-#endif
 
 	schedule_delayed_work(&chip->aicl_check_work,
 		msecs_to_jiffies(EOC_CHECK_PERIOD_MS));
@@ -6777,9 +6380,7 @@ qpnp_charger_remove(struct spmi_device *spmi)
 
 	regulator_unregister(chip->otg_vreg.rdev);
 	regulator_unregister(chip->boost_vreg.rdev);
-#ifdef CIDL
-	cancel_delayed_work_sync(&chip->charging_inform_work);
-#endif
+
 	return 0;
 }
 
@@ -6799,9 +6400,7 @@ static int qpnp_chg_resume(struct device *dev)
 #ifdef CONFIG_LGE_PM_CHARGING_TEMP_SCENARIO
 	schedule_delayed_work(&chip->battemp_work, HZ*10);
 #endif
-#ifdef CIDL
-	schedule_delayed_work(&chip->charging_inform_work, HZ*20);
-#endif
+
 	return rc;
 }
 
@@ -6818,13 +6417,11 @@ static int qpnp_chg_suspend(struct device *dev)
 		if (rc)
 			pr_debug("failed to set FSM VREF_BAT_THM rc=%d\n", rc);
 	}
-
+	
 #ifdef CONFIG_LGE_PM_CHARGING_TEMP_SCENARIO
 	cancel_delayed_work_sync(&chip->battemp_work);
 #endif
-#ifdef CIDL
-	cancel_delayed_work_sync(&chip->charging_inform_work);
-#endif
+
 	return rc;
 }
 

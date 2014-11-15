@@ -278,16 +278,6 @@ static int gen_dbi_crash(const char *val, struct kernel_param *kp)
 module_param_call(gen_dbi_crash, gen_dbi_crash, param_get_bool,
         &dummy_arg, S_IWUSR | S_IRUGO);
 
-#include <mach/scm.h>
-static int gen_dbi_crash_new(const char *val, struct kernel_param *kp)
-{
-	u8 disable_debug = 0; 
-	scm_call(SCM_SVC_BOOT, 8, &disable_debug, sizeof(disable_debug), NULL, 0); 
-	return 0;
-}
-module_param_call(gen_dbi_crash_new, gen_dbi_crash_new, param_get_bool,
-        &dummy_arg, S_IWUSR | S_IRUGO);
-
 static int no_powermode=1;
 static int no_powermode_set(const char *val, struct kernel_param *kp)
 {

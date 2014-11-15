@@ -77,7 +77,11 @@ static void *emergency_dload_mode_addr;
 
 /* Download mode master kill-switch */
 static int dload_set(const char *val, struct kernel_param *kp);
+#ifdef CONFIG_MACH_MSM8X10_W3C_TRF_US
 static int download_mode = 0;
+#else
+static int download_mode = 1;
+#endif
 module_param_call(download_mode, dload_set, param_get_int,
 			&download_mode, 0644);
 static int panic_prep_restart(struct notifier_block *this,
@@ -93,7 +97,6 @@ static struct notifier_block panic_blk = {
 
 static void set_dload_mode(int on)
 {
-	pr_err("%s(%d)\n", __func__, on);
 	if (dload_mode_addr) {
 		__raw_writel(on ? 0xE47B337D : 0, dload_mode_addr);
 		__raw_writel(on ? 0xCE14091A : 0,
@@ -105,7 +108,6 @@ static void set_dload_mode(int on)
 
 static bool get_dload_mode(void)
 {
-	pr_err("%s(%d)\n", __func__, dload_mode_enabled);
 	return dload_mode_enabled;
 }
 
@@ -289,11 +291,6 @@ static void msm_restart_prepare(const char *cmd)
 			__raw_writel(0x77665500, restart_reason);
 		} else if (!strncmp(cmd, "recovery", 8)) {
 			__raw_writel(0x77665502, restart_reason);
-#ifdef CONFIG_LGE_SLATE
-		} else if (!strncmp(cmd, "adbrecovery", 11)) {
-			__raw_writel(0x77665511, restart_reason);
-#endif //                 
-
 #ifdef CONFIG_LGE_BNR_RECOVERY_REBOOT
 			/* PC Sync B&R : Add restart reason */
 		} else if (!strncmp(cmd, "--bnr_recovery", 14)) {

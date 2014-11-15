@@ -45,7 +45,7 @@ unsigned char F54_TxToGndReport(void);
 unsigned char F54_TxToTxReport(void);
 unsigned char F54_TxOpenReport(void);
 unsigned char F54_RxOpenReport(void);
-unsigned char F54_HighResistance(void);
+unsigned char F54_HighResistance(int );
 
 int F54_GetFullRawCap(int, char *);
 int F54_GetRxToRxReport(char *);
